@@ -6,7 +6,7 @@
 
     <groupId>ru.yjailbir</groupId>
     <artifactId>bank-app-yandex-practicum-sprint-9</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
     <name>bank-yandex-practicum-project</name>
     <packaging>pom</packaging>
 
@@ -16,4 +16,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <modules>
+        <module>ui-service</module>
+    </modules>
 </project>

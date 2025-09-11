@@ -5,7 +5,3 @@ spring:
     consul:
       host: consul
       port: 8500
-      config:
-        enabled: true
-  config:
-    import: "optional:consul:"

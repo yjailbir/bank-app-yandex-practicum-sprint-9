@@ -5,11 +5,32 @@ services:
     ports:
       - "8500:8500"
 
+  config-service:
+    build:
+      context: .
+      dockerfile: config-service/Dockerfile
+    container_name: config-service
+    depends_on:
+      - consul
+
   ui-service:
     build:
-      context: ./ui-service
+      context: .
+      dockerfile: config-service/Dockerfile
     container_name: ui-service
     depends_on:
       - consul
+      - config-service
     ports:
       - "8080:8080"
+
+  accounts-service:
+    build:
+      context: .
+      dockerfile: accounts-service/Dockerfile
+    container_name: accounts-service
+    depends_on:
+      - consul
+      - config-service
+    ports:
+      - "8081:8080"

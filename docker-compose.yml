@@ -16,7 +16,7 @@ services:
   ui-service:
     build:
       context: .
-      dockerfile: config-service/Dockerfile
+      dockerfile: ui-service/Dockerfile
     container_name: ui-service
     depends_on:
       - consul

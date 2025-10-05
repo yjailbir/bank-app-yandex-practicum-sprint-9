@@ -5,17 +5,6 @@ services:
     ports:
       - "8500:8500"
 
-  keycloak:
-    image: quay.io/keycloak/keycloak:26.1.3
-    container_name: keycloak
-    environment:
-      - KEYCLOAK_ADMIN=admin
-      - KEYCLOAK_ADMIN_PASSWORD=password
-    ports:
-      - "8081:8080"
-    command:
-      - start-dev
-
   config-service:
     build:
       context: .
@@ -23,7 +12,6 @@ services:
     container_name: config-service
     depends_on:
       - consul
-      - keycloak
 
   ui-service:
     build:
@@ -33,7 +21,6 @@ services:
     depends_on:
       - consul
       - config-service
-      - keycloak
     ports:
       - "8080:8080"
 
@@ -45,6 +32,5 @@ services:
     depends_on:
       - consul
       - config-service
-      - keycloak
     ports:
-      - "8082:8080"
+      - "8081:8080"

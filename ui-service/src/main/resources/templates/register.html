@@ -8,7 +8,7 @@
 </head>
 
 <body>
-<form th:action="${'/signup'}" method="post">
+<form th:action="${'/register'}" method="post">
 <table style="width:30%;margin-left:auto;margin-right:auto;border-radius:2%;padding:10px;background-color:whitesmoke;">
     <tr>
         <td colspan="2">
@@ -21,7 +21,7 @@
     <tr>
         <td style="font-weight:bold;">Логин</td>
         <td>
-            <input name="login" type="text" th:value="${login}" style="width:100%" required/>
+            <input name="login" type="text" style="width:100%" required/>
         </td>
     </tr>
     <tr>
@@ -33,13 +33,13 @@
     <tr>
         <td style="font-weight:bold;">Фамилия</td>
         <td>
-            <input name="name" type="text" th:value="${name}" style="width:100%" required/>
+            <input name="surname" type="text" style="width:100%" required/>
         </td>
     </tr>
     <tr>
         <td style="font-weight:bold;">Имя</td>
         <td>
-            <input name="surname" type="text" th:value="${surname}" style="width:100%" required/>
+            <input name="name" type="text" style="width:100%" required/>
         </td>
     </tr>
     <tr>

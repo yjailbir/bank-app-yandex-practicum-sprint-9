@@ -1,0 +1,15 @@
+spring:
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            issuer-uri: http://keycloak:8080/realms/master
+        registration:
+          ui-client:
+            provider: keycloak
+            authorizationGrantType: client_credentials
+            client-id: ui-service
+            client-secret: 5tHpBQMoyyi75j38LIDfS7hikjdJl2PI
+            scope: profile
+            clientAuthenticationMethod: client_secret_post

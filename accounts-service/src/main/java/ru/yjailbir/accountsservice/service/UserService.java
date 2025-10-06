@@ -9,8 +9,6 @@ import ru.yjailbir.accountsservice.entity.UserEntity;
 import ru.yjailbir.accountsservice.repository.UserRepository;
 import ru.yjailbir.accountsservice.security.JwtUtil;
 
-import java.util.Optional;
-
 @Service
 public class UserService {
     private final UserRepository userRepository;
@@ -31,20 +29,19 @@ public class UserService {
                     dto.name()
             ));
         } else {
-            throw new IllegalArgumentException("Username already exists");
+            throw new IllegalArgumentException("Имя пользователя занято!");
         }
     }
 
     public String loginUser(LoginRequestDto dto) {
-        Optional<UserEntity> user = userRepository.findByLogin(dto.login());
-        if (user.isPresent()) {
-            if (verifyPassword(dto.password(), user.get().getPassword())) {
-                return jwtUtil.generateJwtToken(user.get());
-            }
-        } else {
-            throw new IllegalArgumentException("Username does not exist");
+        UserEntity user = userRepository.findByLogin(dto.login())
+                .orElseThrow(() -> new IllegalArgumentException("Пользователь не существует!"));
+
+        if (!verifyPassword(dto.password(), user.getPassword())) {
+            throw new IllegalArgumentException("Неверный пароль!");
         }
-        return null;
+
+        return jwtUtil.generateJwtToken(user);
     }
 
     private String hashPassword(String plainPassword) {

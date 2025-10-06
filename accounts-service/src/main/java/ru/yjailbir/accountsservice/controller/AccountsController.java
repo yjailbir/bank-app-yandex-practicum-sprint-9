@@ -23,7 +23,7 @@ public class AccountsController {
     public ResponseEntity<ResponseDto> registerAccount(@RequestBody RegisterRequestDto dto) {
         try {
             userService.saveNewUser(dto);
-            return ResponseEntity.ok(new ResponseDto("ok", "user registered successfully"));
+            return ResponseEntity.ok(new ResponseDto("ok", "пользователь зарегистрирован"));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new ResponseDto("error", e.getMessage()));
         }
@@ -31,7 +31,11 @@ public class AccountsController {
 
     @PostMapping("/login")
     public ResponseEntity<ResponseDto> login(@RequestBody LoginRequestDto dto) {
-        //todo сделать нормально
-        return ResponseEntity.ok(new ResponseDto("ok", userService.loginUser(dto)));
+        try {
+            String token = userService.loginUser(dto);
+            return ResponseEntity.ok(new ResponseDto("ok", token));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new ResponseDto("error", e.getMessage()));
+        }
     }
 }

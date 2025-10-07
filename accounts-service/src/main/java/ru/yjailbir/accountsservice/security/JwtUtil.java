@@ -17,7 +17,7 @@ public class JwtUtil {
     private String jwtSecret;
 
     public String validateJwtToken(String authToken) {
-        String error = "";
+        String error = "ok";
         try {
             Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(authToken);
             return error;

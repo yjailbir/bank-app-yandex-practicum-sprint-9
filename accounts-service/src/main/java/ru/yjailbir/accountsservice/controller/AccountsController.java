@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import ru.yjailbir.commonservice.dto.request.TokenValidationRequestDto;
 import ru.yjailbir.commonservice.dto.response.ResponseDto;
 import ru.yjailbir.accountsservice.service.UserService;
 
@@ -39,4 +40,8 @@ public class AccountsController {
         }
     }
 
+    @PostMapping("/validate")
+    public String validateToken(@RequestBody TokenValidationRequestDto dto) {
+        return userService.validateToken(dto.token());
+    }
 }

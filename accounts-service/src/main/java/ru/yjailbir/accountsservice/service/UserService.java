@@ -44,6 +44,10 @@ public class UserService {
         return jwtUtil.generateJwtToken(user);
     }
 
+    public String validateToken(String token) {
+        return jwtUtil.validateJwtToken(token);
+    }
+
     private String hashPassword(String plainPassword) {
         return BCrypt.hashpw(plainPassword, BCrypt.gensalt(12));
     }

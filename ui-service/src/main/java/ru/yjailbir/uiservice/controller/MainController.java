@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/bank")
 public class MainController {
 
-    @GetMapping("/main")
+    @GetMapping
     public String mainPage(HttpSession session, Model model) {
         if (session.getAttribute("JWT_TOKEN") == null) {
             return "redirect:/auth/login";

@@ -39,21 +39,9 @@
     </dependencyManagement>
 
     <modules>
-        <module>common-service</module>
+        <module>common</module>
         <module>config-service</module>
         <module>ui-service</module>
         <module>accounts-service</module>
     </modules>
-
-    <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-maven-plugin</artifactId>
-                    <version>${spring.boot.version}</version>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-    </build>
 </project>

@@ -14,6 +14,7 @@
     <version>1.0</version>
     <name>ui-service</name>
     <description>ui-service</description>
+    <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
@@ -38,7 +39,7 @@
         </dependency>
         <dependency>
             <groupId>ru.yjailbir</groupId>
-            <artifactId>common-service</artifactId>
+            <artifactId>common</artifactId>
             <version>1.0</version>
         </dependency>
 
@@ -54,6 +55,14 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring.boot.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

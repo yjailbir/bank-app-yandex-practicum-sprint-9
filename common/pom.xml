@@ -10,10 +10,11 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>common-service</artifactId>
+    <artifactId>common</artifactId>
     <version>1.0</version>
-    <name>common-service</name>
-    <description>common-service</description>
+    <name>common</name>
+    <description>common-library</description>
+    <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
@@ -29,13 +30,4 @@
             <artifactId>spring-cloud-starter-consul-discovery</artifactId>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
 </project>

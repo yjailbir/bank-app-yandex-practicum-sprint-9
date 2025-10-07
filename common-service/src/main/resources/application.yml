@@ -1,0 +1,8 @@
+spring:
+  application.name: common-service
+  cloud:
+    consul:
+      host: consul
+      port: 8500
+  config:
+    import: configserver:http://config-service:8080

@@ -1,8 +1,5 @@
 package ru.yjailbir.uiservice.controller;
 
-import dto.request.LoginRequestDto;
-import dto.request.RegisterRequestDto;
-import dto.response.ResponseDto;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +10,9 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.client.RestTemplate;
+import ru.yjailbir.commonservice.dto.request.LoginRequestDto;
+import ru.yjailbir.commonservice.dto.request.RegisterRequestDto;
+import ru.yjailbir.commonservice.dto.response.ResponseDto;
 
 import java.util.Collections;
 import java.util.List;
@@ -77,7 +77,7 @@ public class AuthController {
         if (responseDto != null) {
             if (responseEntity.getStatusCode().is2xxSuccessful() && responseDto.status().equals("ok")) {
                 session.setAttribute("JWT_TOKEN", responseDto.message());
-                return "redirect:/auth/test"; //todo убрать это
+                return "redirect:/bank";
             } else {
                 model.addAttribute("errors", List.of(responseDto.message()));
                 return "login";
@@ -86,14 +86,5 @@ public class AuthController {
             model.addAttribute("errors", List.of("Сервис недоступен"));
             return "login";
         }
-    }
-
-    @GetMapping("/test")
-    public String mainPage(HttpSession session, Model model) {
-        if (session.getAttribute("JWT_TOKEN") == null) {
-            return "redirect:/auth/login";
-        }
-        model.addAttribute("data", List.of(session.getAttribute("JWT_TOKEN")));
-        return "test";
     }
 }

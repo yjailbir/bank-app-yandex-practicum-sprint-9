@@ -1,7 +1,7 @@
 package ru.yjailbir.accountsservice.service;
 
-import dto.request.LoginRequestDto;
-import dto.request.RegisterRequestDto;
+import ru.yjailbir.commonservice.dto.request.LoginRequestDto;
+import ru.yjailbir.commonservice.dto.request.RegisterRequestDto;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

@@ -1,13 +1,13 @@
 package ru.yjailbir.accountsservice.controller;
 
-import dto.request.LoginRequestDto;
-import dto.request.RegisterRequestDto;
+import ru.yjailbir.commonservice.dto.request.LoginRequestDto;
+import ru.yjailbir.commonservice.dto.request.RegisterRequestDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import dto.response.ResponseDto;
+import ru.yjailbir.commonservice.dto.response.ResponseDto;
 import ru.yjailbir.accountsservice.service.UserService;
 
 @RestController
@@ -38,4 +38,5 @@ public class AccountsController {
             return ResponseEntity.badRequest().body(new ResponseDto("error", e.getMessage()));
         }
     }
+
 }

@@ -39,7 +39,7 @@
 </a>
 <table style="width:70%;margin-left:auto;margin-right:auto;">
     <tr><td style="padding:2px;">
-        <form method="post" th:action="${'/user/'+login+'/editPassword'}">
+        <form method="post" th:action="@{/bank/change-password}">
         <table style="width:100%;margin-left:auto;margin-right:auto;border-radius:2%;padding:10px;background-color:whitesmoke;">
             <tr>
                 <td style="font-weight:bold;">Логин</td>
@@ -53,7 +53,7 @@
                         Пароль: <input name="password" type="password" required/>
                     </p>
                     <p>
-                        Повторите пароль: <input name="confirm_password" type="password" required/>
+                        Повторите пароль: <input name="confirmPassword" type="password" required/>
                     </p>
                 </td>
                 <td style="text-align:right">
@@ -74,13 +74,6 @@
                 <td th:text="${name}"/>
                 <td>
                     <input name="name" type="text" style="width:100%"/>
-                </td>
-            </tr>
-            <tr>
-                <td style="font-weight:bold;">Дата рождения</td>
-                <td th:text="${birthdate}"/>
-                <td>
-                    <input name="birthdate" type="date" style="width:100%"/>
                 </td>
             </tr>
             <tr th:each="account : ${accounts}">

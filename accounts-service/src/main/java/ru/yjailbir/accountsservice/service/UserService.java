@@ -1,6 +1,8 @@
 package ru.yjailbir.accountsservice.service;
 
 import ru.yjailbir.commonservice.dto.request.LoginRequestDto;
+import ru.yjailbir.commonservice.dto.request.PasswordChangeDto;
+import ru.yjailbir.commonservice.dto.request.PasswordChangeDtoWithToken;
 import ru.yjailbir.commonservice.dto.request.RegisterRequestDto;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +13,7 @@ import ru.yjailbir.accountsservice.security.JwtUtil;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -49,6 +52,18 @@ public class UserService {
         }
 
         return jwtUtil.generateJwtToken(user);
+    }
+
+    public void updateUserPassword(PasswordChangeDtoWithToken dto) {
+        Optional<UserEntity> userOptional = userRepository.findByLogin(jwtUtil.getLoginFromJwtToken(dto.token()));
+        if (userOptional.isPresent()) {
+            UserEntity userEntity = userOptional.get();
+            userEntity.setPassword(hashPassword(dto.password()));
+            userRepository.save(userEntity);
+        } else {
+            //По идее это никогда не выбросится, потому что токен нельзя скомпрометировать, потому что он хранится на сервере
+            throw new IllegalArgumentException("Пользователь не существует!");
+        }
     }
 
     public String validateToken(String token) {

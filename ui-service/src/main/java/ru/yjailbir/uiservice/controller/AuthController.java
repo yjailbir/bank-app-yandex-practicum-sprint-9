@@ -10,9 +10,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import ru.yjailbir.commonservice.dto.request.LoginRequestDto;
-import ru.yjailbir.commonservice.dto.request.PasswordChangeDto;
 import ru.yjailbir.commonservice.dto.request.RegisterRequestDto;
-import ru.yjailbir.commonservice.dto.response.ResponseDto;
+import ru.yjailbir.commonservice.dto.response.MessageResponseDto;
 
 import java.util.Collections;
 import java.util.List;
@@ -41,16 +40,16 @@ public class AuthController {
 
     @PostMapping("/register")
     public String registerUser(@ModelAttribute RegisterRequestDto dto, Model model) {
-        ResponseEntity<ResponseDto> responseEntity = restTemplate.postForEntity(
-                "http://accounts-service/register", dto, ResponseDto.class
+        ResponseEntity<MessageResponseDto> responseEntity = restTemplate.postForEntity(
+                "http://accounts-service/register", dto, MessageResponseDto.class
         );
-        ResponseDto responseDto = responseEntity.getBody();
+        MessageResponseDto messageResponseDto = responseEntity.getBody();
 
-        if (responseDto != null) {
-            if (responseEntity.getStatusCode().is2xxSuccessful() && responseDto.status().equals("ok")) {
+        if (messageResponseDto != null) {
+            if (responseEntity.getStatusCode().is2xxSuccessful() && messageResponseDto.status().equals("ok")) {
                 return "redirect:/auth/login";
             } else {
-                model.addAttribute("errors", List.of(responseDto.message()));
+                model.addAttribute("errors", List.of(messageResponseDto.message()));
                 return "register";
             }
         } else {
@@ -69,17 +68,17 @@ public class AuthController {
 
     @PostMapping("/login")
     public String loginUser(@ModelAttribute LoginRequestDto dto, HttpSession session, Model model) {
-        ResponseEntity<ResponseDto> responseEntity = restTemplate.postForEntity(
-                "http://accounts-service/login", dto, ResponseDto.class
+        ResponseEntity<MessageResponseDto> responseEntity = restTemplate.postForEntity(
+                "http://accounts-service/login", dto, MessageResponseDto.class
         );
-        ResponseDto responseDto = responseEntity.getBody();
+        MessageResponseDto messageResponseDto = responseEntity.getBody();
 
-        if (responseDto != null) {
-            if (responseEntity.getStatusCode().is2xxSuccessful() && responseDto.status().equals("ok")) {
-                session.setAttribute("JWT_TOKEN", responseDto.message());
+        if (messageResponseDto != null) {
+            if (responseEntity.getStatusCode().is2xxSuccessful() && messageResponseDto.status().equals("ok")) {
+                session.setAttribute("JWT_TOKEN", messageResponseDto.message());
                 return "redirect:/bank";
             } else {
-                model.addAttribute("errors", List.of(responseDto.message()));
+                model.addAttribute("errors", List.of(messageResponseDto.message()));
                 return "login";
             }
         } else {

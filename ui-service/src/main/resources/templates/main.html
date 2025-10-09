@@ -70,10 +70,17 @@
                 <td style="color:red;" th:text="${userAccountsError}"/>
             </tr>
             <tr>
-                <td style="font-weight:bold;">Фамилия Имя</td>
+                <td style="font-weight:bold;">Имя</td>
                 <td th:text="${name}"/>
                 <td>
                     <input name="name" type="text" style="width:100%"/>
+                </td>
+            </tr>
+            <tr>
+                <td style="font-weight:bold;">Фамилия</td>
+                <td th:text="${surname}"/>
+                <td>
+                    <input name="surname" type="text" style="width:100%"/>
                 </td>
             </tr>
             <tr th:each="account : ${accounts}">

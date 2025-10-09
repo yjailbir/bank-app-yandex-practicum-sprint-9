@@ -1,14 +1,12 @@
 package ru.yjailbir.accountsservice.controller;
 
-import jakarta.servlet.http.HttpSession;
+import org.springframework.web.bind.annotation.*;
 import ru.yjailbir.commonservice.dto.request.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
-import ru.yjailbir.commonservice.dto.response.ResponseDto;
+import ru.yjailbir.commonservice.dto.response.MessageResponseDto;
 import ru.yjailbir.accountsservice.service.UserService;
+import ru.yjailbir.commonservice.dto.response.UserDataResponseDto;
 
 @RestController
 public class AccountsController {
@@ -20,41 +18,55 @@ public class AccountsController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<ResponseDto> registerAccount(@RequestBody RegisterRequestDto dto) {
+    public ResponseEntity<MessageResponseDto> registerAccount(@RequestBody RegisterRequestDto dto) {
         try {
             userService.saveNewUser(dto);
-            return ResponseEntity.ok(new ResponseDto("ok", "пользователь зарегистрирован"));
+            return ResponseEntity.ok(new MessageResponseDto("ok", "пользователь зарегистрирован"));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new ResponseDto("error", e.getMessage()));
+            return ResponseEntity.badRequest().body(new MessageResponseDto("error", e.getMessage()));
         }
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ResponseDto> login(@RequestBody LoginRequestDto dto) {
+    public ResponseEntity<MessageResponseDto> login(@RequestBody LoginRequestDto dto) {
         try {
             String token = userService.loginUser(dto);
-            return ResponseEntity.ok(new ResponseDto("ok", token));
+            return ResponseEntity.ok(new MessageResponseDto("ok", token));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new ResponseDto("error", e.getMessage()));
+            return ResponseEntity.badRequest().body(new MessageResponseDto("error", e.getMessage()));
         }
     }
 
     @PostMapping("/validate")
-    public String validateToken(@RequestBody TokenValidationRequestDto dto) {
+    public String validateToken(@RequestBody TokenDto dto) {
         return userService.validateToken(dto.token());
     }
 
     @PostMapping("/change-password")
-    public ResponseEntity<ResponseDto> changePassword(@RequestBody PasswordChangeDtoWithToken dto) {
+    public ResponseEntity<MessageResponseDto> changePassword(@RequestBody PasswordChangeDtoWithToken dto) {
         String tokenValidationResult = userService.validateToken(dto.token());
         if (!tokenValidationResult.equals("ok")) {
-            return ResponseEntity.badRequest().body(new ResponseDto("error", tokenValidationResult));
+            return ResponseEntity.badRequest().body(new MessageResponseDto("error", tokenValidationResult));
         } else {
             try {
                 userService.updateUserPassword(dto);
-                return ResponseEntity.ok(new ResponseDto("ok", ""));
+                return ResponseEntity.ok(new MessageResponseDto("ok", ""));
             } catch (IllegalArgumentException e) {
-                return ResponseEntity.badRequest().body(new ResponseDto("error", e.getMessage()));
+                return ResponseEntity.badRequest().body(new MessageResponseDto("error", e.getMessage()));
+            }
+        }
+    }
+
+    @PostMapping("/user-data")
+    public ResponseEntity<UserDataResponseDto> getUserData(@RequestBody TokenDto dto) {
+        String tokenValidationResult = userService.validateToken(dto.token());
+        if (!tokenValidationResult.equals("ok")) {
+            return ResponseEntity.badRequest().body(new UserDataResponseDto("error", tokenValidationResult));
+        } else {
+            try {
+                return ResponseEntity.ok(userService.getUserData(dto.token()));
+            } catch (IllegalArgumentException e) {
+                return ResponseEntity.badRequest().body(new UserDataResponseDto("error", e.getMessage()));
             }
         }
     }

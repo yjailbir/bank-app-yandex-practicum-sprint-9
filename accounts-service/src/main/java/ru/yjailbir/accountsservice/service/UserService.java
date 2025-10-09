@@ -9,6 +9,9 @@ import ru.yjailbir.accountsservice.entity.UserEntity;
 import ru.yjailbir.accountsservice.repository.UserRepository;
 import ru.yjailbir.accountsservice.security.JwtUtil;
 
+import java.time.LocalDate;
+import java.time.Period;
+
 @Service
 public class UserService {
     private final UserRepository userRepository;
@@ -21,16 +24,20 @@ public class UserService {
     }
 
     public void saveNewUser(RegisterRequestDto dto) {
-        if (userRepository.findByLogin(dto.login()).isEmpty()) {
-            userRepository.save(new UserEntity(
-                    dto.login(),
-                    hashPassword(dto.password()),
-                    dto.surname(),
-                    dto.name()
-            ));
-        } else {
+        if (userRepository.findByLogin(dto.login()).isPresent()) {
             throw new IllegalArgumentException("Имя пользователя занято!");
         }
+        if(Period.between(dto.birthDate(), LocalDate.now()).getYears() < 18) {
+            throw new IllegalArgumentException("Возраст должен быть не меньше 18 лет!");
+        }
+
+        userRepository.save(new UserEntity(
+                dto.login(),
+                hashPassword(dto.password()),
+                dto.surname(),
+                dto.name(),
+                dto.birthDate()
+        ));
     }
 
     public String loginUser(LoginRequestDto dto) {

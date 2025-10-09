@@ -1,5 +1,7 @@
 package ru.yjailbir.uiservice.controller;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -86,5 +88,16 @@ public class AuthController {
             model.addAttribute("errors", List.of("Сервис недоступен"));
             return "login";
         }
+    }
+
+    @GetMapping("/logout")
+    public String logout(HttpSession session, HttpServletResponse response) {
+        session.invalidate();
+        Cookie cookie = new Cookie("JSESSIONID", null);
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
+        return "redirect:/auth/login";
     }
 }

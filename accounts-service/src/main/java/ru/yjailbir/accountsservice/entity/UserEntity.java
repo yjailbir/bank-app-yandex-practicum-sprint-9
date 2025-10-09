@@ -2,6 +2,8 @@ package ru.yjailbir.accountsservice.entity;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
+
 @Entity
 @Table(name = "users")
 public class UserEntity {
@@ -16,12 +18,15 @@ public class UserEntity {
     private String surname;
     @Column(name = "name")
     private String name;
+    @Column
+    private LocalDate birthday;
 
-    public UserEntity(String login, String password, String surname, String name) {
+    public UserEntity(String login, String password, String surname, String name, LocalDate birthday) {
         this.login = login;
         this.password = password;
         this.surname = surname;
         this.name = name;
+        this.birthday = birthday;
     }
 
     public UserEntity() {
@@ -45,5 +50,9 @@ public class UserEntity {
 
     public String getName() {
         return name;
+    }
+
+    public LocalDate getBirthday() {
+        return birthday;
     }
 }

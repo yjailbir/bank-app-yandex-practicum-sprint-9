@@ -43,5 +43,6 @@
         <module>config-service</module>
         <module>ui-service</module>
         <module>accounts-service</module>
+        <module>blocker-service</module>
     </modules>
 </project>

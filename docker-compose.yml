@@ -32,5 +32,12 @@ services:
     depends_on:
       - consul
       - config-service
-    ports:
-      - "8081:8080"
+
+  blocker-service:
+    build:
+      context: .
+      dockerfile: blocker-service/Dockerfile
+    container_name: blocker-service
+    depends_on:
+      - consul
+      - config-service

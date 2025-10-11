@@ -7,7 +7,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ru.yjailbir.commonservice.dto.request.*;
 import ru.yjailbir.commonservice.dto.response.UserDataResponseDto;
 import ru.yjailbir.commonservice.dto.response.MessageResponseDto;
@@ -110,5 +109,10 @@ public class MainController {
         } else {
             return "redirect:/auth/login";
         }
+    }
+
+    @PostMapping("/cash")
+    public String cashOperation(HttpSession session, Model model) {
+
     }
 }

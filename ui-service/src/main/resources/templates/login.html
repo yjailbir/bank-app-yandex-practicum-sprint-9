@@ -2,7 +2,14 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <meta charset="UTF-8">
+<head>
+    <title>Вход</title>
+</head>
 
+<body>
+<a href="/auth/register" style="float:right;">
+    <b>РЕГИСТРАЦИЯ &plus;</b>
+</a>
 <form th:action="@{/auth/login}" method="post">
     <table>
         <tr th:each="error : ${errors}">
@@ -13,3 +20,4 @@
     <label>Пароль <input type="password" name="password"/></label><br/>
     <button type="submit">Войти</button>
 </form>
+</body>

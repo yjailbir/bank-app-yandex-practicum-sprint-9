@@ -7,9 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
-import ru.yjailbir.commonservice.dto.request.PasswordChangeDto;
-import ru.yjailbir.commonservice.dto.request.PasswordChangeDtoWithToken;
-import ru.yjailbir.commonservice.dto.request.TokenDto;
+import ru.yjailbir.commonservice.dto.request.*;
 import ru.yjailbir.commonservice.dto.response.UserDataResponseDto;
 import ru.yjailbir.commonservice.dto.response.MessageResponseDto;
 
@@ -67,7 +65,6 @@ public class MainController {
         } else {
             String token = session.getAttribute("JWT_TOKEN").toString();
             if (token != null) {
-
                 ResponseEntity<MessageResponseDto> responseEntity = restTemplate.postForEntity(
                         "http://accounts-service/change-password",
                         new PasswordChangeDtoWithToken(dto.password(), token), MessageResponseDto.class
@@ -81,11 +78,39 @@ public class MainController {
                 } else {
                     model.addAttribute("passwordErrors", List.of("Сервис недоступен"));
                 }
-                return "main";
+                return "redirect:/bank";
             } else {
                 return "redirect:/auth/login";
             }
         }
     }
 
+    @PostMapping("/edit")
+    public String edit(@ModelAttribute UserEditDto dto, HttpSession session, Model model) {
+        if (dto.name().isEmpty() && dto.surname().isEmpty()) {
+            model.addAttribute("userAccountsErrors", List.of("Введите хотя бы одно новое значение!"));
+            return "main";
+        } else {
+            String token = session.getAttribute("JWT_TOKEN").toString();
+            if (token != null) {
+                ResponseEntity<MessageResponseDto> responseEntity = restTemplate.postForEntity(
+                        "http://accounts-service/edit",
+                        new UserEditDtoWithToken(dto.name(), dto.surname(), token),
+                        MessageResponseDto.class
+                );
+                MessageResponseDto messageResponseDto = responseEntity.getBody();
+
+                if (messageResponseDto != null) {
+                    if (!responseEntity.getStatusCode().is2xxSuccessful() || !messageResponseDto.status().equals("ok")) {
+                        model.addAttribute("userAccountsErrors", List.of(messageResponseDto.message()));
+                    }
+                } else {
+                    model.addAttribute("userAccountsErrors", List.of("Сервис недоступен"));
+                }
+                return "redirect:/bank";
+            } else {
+                return "redirect:/auth/login";
+            }
+        }
+    }
 }

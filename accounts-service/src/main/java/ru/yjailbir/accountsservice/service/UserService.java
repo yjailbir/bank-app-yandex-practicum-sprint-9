@@ -58,7 +58,7 @@ public class UserService {
             userEntity.setPassword(hashPassword(dto.password()));
             userRepository.save(userEntity);
         } else {
-            //По идее это никогда не выбросится, потому что токен нельзя скомпрометировать, потому что он хранится на сервере
+            //По идее это никогда не выбросится, потому что токен нельзя изменить, потому что он хранится на сервере
             throw new IllegalArgumentException("Пользователь не существует!");
         }
     }
@@ -68,6 +68,22 @@ public class UserService {
         return new UserDataResponseDto("ok", user.getLogin(), user.getName(), user.getSurname());
     }
 
+    public void updateUser(UserEditDtoWithToken dto) {
+        Optional<UserEntity> userOptional = userRepository.findByLogin(jwtUtil.getLoginFromJwtToken(dto.token()));
+        if (userOptional.isPresent()) {
+            UserEntity userEntity = userOptional.get();
+            if(dto.name() != null) {
+                userEntity.setName(dto.name());
+            }
+            if(dto.surname() != null) {
+                userEntity.setSurname(dto.surname());
+            }
+            userRepository.save(userEntity);
+        } else {
+            //По идее это никогда не выбросится, потому что токен нельзя изменить, потому что он хранится на сервере
+            throw new IllegalArgumentException("Пользователь не существует!");
+        }
+    }
 
     public String validateToken(String token) {
         return jwtUtil.validateJwtToken(token);

@@ -70,4 +70,19 @@ public class AccountsController {
             }
         }
     }
+
+    @PostMapping("/edit")
+    public ResponseEntity<MessageResponseDto> editUser(@RequestBody UserEditDtoWithToken dto) {
+        String tokenValidationResult = userService.validateToken(dto.token());
+        if (!tokenValidationResult.equals("ok")) {
+            return ResponseEntity.badRequest().body(new MessageResponseDto("error", tokenValidationResult));
+        } else {
+            try {
+                userService.updateUser(dto);
+                return ResponseEntity.ok(new MessageResponseDto("ok", ""));
+            } catch (IllegalArgumentException e) {
+                return ResponseEntity.badRequest().body(new MessageResponseDto("error", e.getMessage()));
+            }
+        }
+    }
 }

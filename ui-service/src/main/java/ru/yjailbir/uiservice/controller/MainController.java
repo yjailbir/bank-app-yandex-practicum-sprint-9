@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ru.yjailbir.commonservice.dto.request.*;
 import ru.yjailbir.commonservice.dto.response.UserDataResponseDto;
 import ru.yjailbir.commonservice.dto.response.MessageResponseDto;
@@ -46,11 +47,13 @@ public class MainController {
                     model.addAttribute("login", userDataResponseDto.login);
                     model.addAttribute("name", userDataResponseDto.name);
                     model.addAttribute("surname", userDataResponseDto.surname);
+                    model.addAttribute("accounts", userDataResponseDto.accounts);
                 }
             } else {
                 model.addAttribute("login", "Сервис недоступен");
                 model.addAttribute("name", "Сервис недоступен");
                 model.addAttribute("surname", "Сервис недоступен");
+                model.addAttribute("accounts", "Сервис недоступен");
             }
         }
 
@@ -87,30 +90,25 @@ public class MainController {
 
     @PostMapping("/edit")
     public String edit(@ModelAttribute UserEditDto dto, HttpSession session, Model model) {
-        if (dto.name().isEmpty() && dto.surname().isEmpty()) {
-            model.addAttribute("userAccountsErrors", List.of("Введите хотя бы одно новое значение!"));
-            return "main";
-        } else {
-            String token = session.getAttribute("JWT_TOKEN").toString();
-            if (token != null) {
-                ResponseEntity<MessageResponseDto> responseEntity = restTemplate.postForEntity(
-                        "http://accounts-service/edit",
-                        new UserEditDtoWithToken(dto.name(), dto.surname(), token),
-                        MessageResponseDto.class
-                );
-                MessageResponseDto messageResponseDto = responseEntity.getBody();
+        String token = session.getAttribute("JWT_TOKEN").toString();
+        if (token != null) {
+            ResponseEntity<MessageResponseDto> responseEntity = restTemplate.postForEntity(
+                    "http://accounts-service/edit",
+                    new UserEditDtoWithToken(dto.name(), dto.surname(), dto.activeAccounts(), token),
+                    MessageResponseDto.class
+            );
+            MessageResponseDto messageResponseDto = responseEntity.getBody();
 
-                if (messageResponseDto != null) {
-                    if (!responseEntity.getStatusCode().is2xxSuccessful() || !messageResponseDto.status().equals("ok")) {
-                        model.addAttribute("userAccountsErrors", List.of(messageResponseDto.message()));
-                    }
-                } else {
-                    model.addAttribute("userAccountsErrors", List.of("Сервис недоступен"));
+            if (messageResponseDto != null) {
+                if (!responseEntity.getStatusCode().is2xxSuccessful() || !messageResponseDto.status().equals("ok")) {
+                    model.addAttribute("userAccountsErrors", List.of(messageResponseDto.message()));
                 }
-                return "redirect:/bank";
             } else {
-                return "redirect:/auth/login";
+                model.addAttribute("userAccountsErrors", List.of("Сервис недоступен"));
             }
+            return "redirect:/bank";
+        } else {
+            return "redirect:/auth/login";
         }
     }
 }

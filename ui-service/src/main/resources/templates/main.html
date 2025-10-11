@@ -84,10 +84,10 @@
                 </td>
             </tr>
             <tr th:each="account : ${accounts}">
-                <td style="font-weight:bold;" th:text="${account.getCurrency().getTitle()}"/>
-                <td th:text="${account.isExists() ? (account.getValue()+' '+account.getCurrency().name()) : ''}"/>
+                <td style="font-weight:bold;" th:text="${account.currency()}"/>
+                <td th:text="${account.active() ? (account.balance()+' '+account.name()) : ''}"/>
                 <td style="text-align:right">
-                    <input name="account" type="checkbox" th:checked="${account.isExists()}" th:value="${account.getCurrency().name()}"/>
+                    <input name="activeAccounts" type="checkbox" th:checked="${account.active()}" th:value="${account.currency()}"/>
                 </td>
             </tr>
             <tr>

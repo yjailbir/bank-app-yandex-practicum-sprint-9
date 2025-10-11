@@ -1,4 +1,6 @@
 package ru.yjailbir.commonservice.dto.request;
 
-public record UserEditDtoWithToken (String name, String surname, String token){
+import java.util.List;
+
+public record UserEditDtoWithToken (String name, String surname, List<String> activeAccounts, String token){
 }

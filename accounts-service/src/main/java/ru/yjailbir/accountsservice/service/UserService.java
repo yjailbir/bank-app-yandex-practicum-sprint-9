@@ -1,5 +1,6 @@
 package ru.yjailbir.accountsservice.service;
 
+import ru.yjailbir.accountsservice.entity.AccountEntity;
 import ru.yjailbir.commonservice.dto.request.*;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,10 +8,13 @@ import org.springframework.stereotype.Service;
 import ru.yjailbir.accountsservice.entity.UserEntity;
 import ru.yjailbir.accountsservice.repository.UserRepository;
 import ru.yjailbir.accountsservice.security.JwtUtil;
+import ru.yjailbir.commonservice.dto.response.AccountDto;
 import ru.yjailbir.commonservice.dto.response.UserDataResponseDto;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -39,6 +43,14 @@ public class UserService {
                 dto.name(),
                 dto.birthDate()
         ));
+
+        UserEntity user = userRepository.findByLogin(dto.login()).get();
+        user.getAccounts().addAll(List.of(
+                new AccountEntity("RUB", "Российский рубль", user),
+                new AccountEntity("USD", "Американский доллар", user),
+                new AccountEntity("TMS", "Имперский септим", user)
+        ));
+        userRepository.save(user);
     }
 
     public String loginUser(LoginRequestDto dto) {
@@ -65,19 +77,32 @@ public class UserService {
 
     public UserDataResponseDto getUserData(String token) {
         UserEntity user = getUserEntityByLogin(jwtUtil.getLoginFromJwtToken(token));
-        return new UserDataResponseDto("ok", user.getLogin(), user.getName(), user.getSurname());
+        List<AccountDto> accounts = user.getAccounts().stream().map(
+                accountEntity ->
+                        new AccountDto(
+                                accountEntity.getCurrency(),
+                                accountEntity.getName(),
+                                accountEntity.getBalance(),
+                                accountEntity.isActive()
+                        )
+        ).toList();
+        return new UserDataResponseDto("ok", user.getLogin(), user.getName(), user.getSurname(), accounts);
     }
 
     public void updateUser(UserEditDtoWithToken dto) {
         Optional<UserEntity> userOptional = userRepository.findByLogin(jwtUtil.getLoginFromJwtToken(dto.token()));
         if (userOptional.isPresent()) {
             UserEntity userEntity = userOptional.get();
-            if(dto.name() != null) {
+            if(dto.name() != null && !dto.name().isEmpty() && !dto.name().isBlank()) {
                 userEntity.setName(dto.name());
             }
-            if(dto.surname() != null) {
+            if(dto.surname() != null && !dto.surname().isEmpty() && !dto.surname().isBlank()) {
                 userEntity.setSurname(dto.surname());
             }
+            List<String> activeAccounts = (dto.activeAccounts() == null) ? new ArrayList<>() : dto.activeAccounts();
+            userEntity.getAccounts().forEach(
+                    accountEntity -> accountEntity.setActive(activeAccounts.contains(accountEntity.getCurrency()))
+            );
             userRepository.save(userEntity);
         } else {
             //По идее это никогда не выбросится, потому что токен нельзя изменить, потому что он хранится на сервере

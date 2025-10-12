@@ -19,7 +19,7 @@ public class JwtUtil {
     public String validateJwtToken(String authToken) {
         String error = "ok";
         try {
-            Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(authToken);
+            Jwts.parser().setSigningKey(jwtSecret).build().parseClaimsJws(authToken);
             return error;
         } catch (SignatureException e) {
             error = "Invalid JWT signature";
@@ -46,6 +46,6 @@ public class JwtUtil {
     }
 
     public String getLoginFromJwtToken(String token) {
-        return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getSubject();
+        return Jwts.parser().setSigningKey(jwtSecret).build().parseClaimsJws(token).getBody().getSubject();
     }
 }

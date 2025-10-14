@@ -1,5 +1,7 @@
 package ru.yjailbir.commonservice.dto.response;
 
+import ru.yjailbir.commonservice.dto.AccountDto;
+
 import java.util.List;
 
 public class UserDataResponseDto {
@@ -9,6 +11,9 @@ public class UserDataResponseDto {
     public String name;
     public String surname;
     public List<AccountDto> accounts;
+
+    public UserDataResponseDto() {
+    }
 
     public UserDataResponseDto(String status, String message) {
         this.status = status;

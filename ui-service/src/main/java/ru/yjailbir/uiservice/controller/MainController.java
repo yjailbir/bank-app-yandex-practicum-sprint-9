@@ -7,7 +7,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ru.yjailbir.commonservice.dto.request.*;
+import ru.yjailbir.commonservice.dto.response.UserAccountsResponseDto;
 import ru.yjailbir.commonservice.dto.response.UserDataResponseDto;
 import ru.yjailbir.commonservice.dto.response.MessageResponseDto;
 
@@ -33,15 +35,17 @@ public class MainController {
             return "redirect:/auth/login";
         } else {
             String token = session.getAttribute("JWT_TOKEN").toString();
-            ResponseEntity<UserDataResponseDto> responseEntity = restTemplate.postForEntity(
+            ResponseEntity<UserDataResponseDto> userDataResponseEntity = restTemplate.postForEntity(
                     "http://accounts-service/user-data",
-                    new TokenDto(token), UserDataResponseDto.class
+                    new EmptyRequestDtoWithToken(token), UserDataResponseDto.class
             );
-            UserDataResponseDto userDataResponseDto = responseEntity.getBody();
+            UserDataResponseDto userDataResponseDto = userDataResponseEntity.getBody();
 
             if (userDataResponseDto != null) {
-                if (!responseEntity.getStatusCode().is2xxSuccessful() || !userDataResponseDto.status.equals("ok")) {
-                    model.addAttribute("userAccountsErrors", List.of(userDataResponseDto.message));
+                if (!userDataResponseEntity.getStatusCode().is2xxSuccessful() || !userDataResponseDto.status.equals("ok")) {
+                    if (!model.containsAttribute("userAccountsErrors")) {
+                        model.addAttribute("userAccountsErrors", List.of(userDataResponseDto.message));
+                    }
                 } else {
                     model.addAttribute("login", userDataResponseDto.login);
                     model.addAttribute("name", userDataResponseDto.name);
@@ -54,31 +58,56 @@ public class MainController {
                 model.addAttribute("surname", "Сервис недоступен");
                 model.addAttribute("accounts", "Сервис недоступен");
             }
+
+            ResponseEntity<UserAccountsResponseDto> userAccountsResponseEntity = restTemplate.postForEntity(
+                    "http://accounts-service/active-accounts",
+                    new EmptyRequestDtoWithToken(token), UserAccountsResponseDto.class
+            );
+            UserAccountsResponseDto userAccountsResponseDto = userAccountsResponseEntity.getBody();
+
+            if (userAccountsResponseDto != null) {
+                if (
+                        !userAccountsResponseEntity.getStatusCode().is2xxSuccessful() ||
+                                !userAccountsResponseDto.status.equals("ok")
+                ) {
+                    if (!model.containsAttribute("userAccountsErrors")) {
+                        model.addAttribute("cashErrors", List.of(userAccountsResponseDto.message));
+                    }
+                } else {
+                    model.addAttribute("currency", userAccountsResponseDto.accounts);
+                }
+            } else {
+                model.addAttribute("currency", "Сервис недоступен");
+            }
         }
 
         return "main";
     }
 
     @PostMapping("/change-password")
-    public String changePassword(@ModelAttribute PasswordChangeDto dto, HttpSession session, Model model) {
+    public String changePassword(
+            @ModelAttribute PasswordChangeRequestDto dto,
+            HttpSession session,
+            RedirectAttributes redirectAttributes
+    ) {
         if (!dto.password().equals(dto.confirmPassword())) {
-            model.addAttribute("passwordErrors", List.of("Пароли не совпадают"));
-            return "main";
+            redirectAttributes.addFlashAttribute("passwordErrors", List.of("Пароли не совпадают"));
+            return "redirect:/bank";
         } else {
             String token = session.getAttribute("JWT_TOKEN").toString();
             if (token != null) {
                 ResponseEntity<MessageResponseDto> responseEntity = restTemplate.postForEntity(
                         "http://accounts-service/change-password",
-                        new PasswordChangeDtoWithToken(dto.password(), token), MessageResponseDto.class
+                        new PasswordChangeRequestDtoWithToken(dto.password(), token), MessageResponseDto.class
                 );
                 MessageResponseDto messageResponseDto = responseEntity.getBody();
 
                 if (messageResponseDto != null) {
                     if (!responseEntity.getStatusCode().is2xxSuccessful() || !messageResponseDto.status().equals("ok")) {
-                        model.addAttribute("passwordErrors", List.of(messageResponseDto.message()));
+                        redirectAttributes.addFlashAttribute("passwordErrors", List.of(messageResponseDto.message()));
                     }
                 } else {
-                    model.addAttribute("passwordErrors", List.of("Сервис недоступен"));
+                    redirectAttributes.addFlashAttribute("passwordErrors", List.of("Сервис недоступен"));
                 }
                 return "redirect:/bank";
             } else {
@@ -88,22 +117,26 @@ public class MainController {
     }
 
     @PostMapping("/edit")
-    public String edit(@ModelAttribute UserEditDto dto, HttpSession session, Model model) {
+    public String edit(
+            @ModelAttribute UserEditRequestDto dto,
+            HttpSession session,
+            RedirectAttributes redirectAttributes
+    ) {
         String token = session.getAttribute("JWT_TOKEN").toString();
         if (token != null) {
             ResponseEntity<MessageResponseDto> responseEntity = restTemplate.postForEntity(
                     "http://accounts-service/edit",
-                    new UserEditDtoWithToken(dto.name(), dto.surname(), dto.activeAccounts(), token),
+                    new UserEditRequestDtoWithToken(dto.name(), dto.surname(), dto.activeAccounts(), token),
                     MessageResponseDto.class
             );
             MessageResponseDto messageResponseDto = responseEntity.getBody();
 
             if (messageResponseDto != null) {
                 if (!responseEntity.getStatusCode().is2xxSuccessful() || !messageResponseDto.status().equals("ok")) {
-                    model.addAttribute("userAccountsErrors", List.of(messageResponseDto.message()));
+                    redirectAttributes.addFlashAttribute("userAccountsErrors", List.of(messageResponseDto.message()));
                 }
             } else {
-                model.addAttribute("userAccountsErrors", List.of("Сервис недоступен"));
+                redirectAttributes.addFlashAttribute("userAccountsErrors", List.of("Сервис недоступен"));
             }
             return "redirect:/bank";
         } else {
@@ -112,7 +145,36 @@ public class MainController {
     }
 
     @PostMapping("/cash")
-    public String cashOperation(HttpSession session, Model model) {
+    public String cashOperation(
+            @ModelAttribute CashRequestDto dto,
+            HttpSession session,
+            RedirectAttributes redirectAttributes
+    ) {
+        if (dto.currency() == null) {
+            redirectAttributes.addFlashAttribute("cashErrors", List.of("Нет ни одного открытого счёта!"));
+            return "redirect:/bank";
+        } else {
+            String token = session.getAttribute("JWT_TOKEN").toString();
+            if (token != null) {
+                ResponseEntity<MessageResponseDto> responseEntity = restTemplate.postForEntity(
+                        "http://accounts-service/cash",
+                        new CashRequestDtoWithToken(dto.currency(), dto.value(), dto.action(), token),
+                        MessageResponseDto.class
+                );
+                MessageResponseDto messageResponseDto = responseEntity.getBody();
+
+                if (messageResponseDto != null) {
+                    if (!responseEntity.getStatusCode().is2xxSuccessful() || !messageResponseDto.status().equals("ok")) {
+                        redirectAttributes.addFlashAttribute("cashErrors", List.of(messageResponseDto.message()));
+                    }
+                } else {
+                    redirectAttributes.addFlashAttribute("cashErrors", "Сервис недоступен");
+                }
+                return "redirect:/bank";
+            } else {
+                return "redirect:/auth/login";
+            }
+        }
 
     }
 }

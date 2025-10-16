@@ -9,9 +9,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
-import ru.yjailbir.commonservice.dto.request.LoginRequestDto;
-import ru.yjailbir.commonservice.dto.request.RegisterRequestDto;
-import ru.yjailbir.commonservice.dto.response.MessageResponseDto;
+import ru.yjailbir.commonslib.dto.request.LoginRequestDto;
+import ru.yjailbir.commonslib.dto.request.RegisterRequestDto;
+import ru.yjailbir.commonslib.dto.response.MessageResponseDto;
 
 import java.util.Collections;
 import java.util.List;

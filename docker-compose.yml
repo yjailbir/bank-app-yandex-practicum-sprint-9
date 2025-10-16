@@ -41,3 +41,21 @@ services:
     depends_on:
       - consul
       - config-service
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: notification-service/Dockerfile
+    container_name: notification-service
+    depends_on:
+      - consul
+      - config-service
+
+  cash-service:
+    build:
+      context: .
+      dockerfile: cash-service/Dockerfile
+    container_name: cash-service
+    depends_on:
+      - consul
+      - config-service

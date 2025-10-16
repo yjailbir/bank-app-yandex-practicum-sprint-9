@@ -2,17 +2,17 @@ package ru.yjailbir.accountsservice.service;
 
 import ru.yjailbir.accountsservice.entity.AccountEntity;
 import ru.yjailbir.accountsservice.repository.AccountsRepository;
-import ru.yjailbir.commonservice.dto.CurrencyDto;
-import ru.yjailbir.commonservice.dto.request.*;
+import ru.yjailbir.commonslib.dto.CurrencyDto;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yjailbir.accountsservice.entity.UserEntity;
 import ru.yjailbir.accountsservice.repository.UserRepository;
 import ru.yjailbir.accountsservice.security.JwtUtil;
-import ru.yjailbir.commonservice.dto.AccountDto;
-import ru.yjailbir.commonservice.dto.response.UserAccountsResponseDto;
-import ru.yjailbir.commonservice.dto.response.UserDataResponseDto;
+import ru.yjailbir.commonslib.dto.AccountDto;
+import ru.yjailbir.commonslib.dto.request.*;
+import ru.yjailbir.commonslib.dto.response.UserAccountsResponseDto;
+import ru.yjailbir.commonslib.dto.response.UserDataResponseDto;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -142,9 +142,12 @@ public class UserService {
         accountsRepository.save(account);
     }
 
-
     public String validateToken(String token) {
         return jwtUtil.validateJwtToken(token);
+    }
+
+    public String getLoginFromToken(String token) {
+        return jwtUtil.getLoginFromJwtToken(token);
     }
 
     private UserEntity getUserEntityByLogin(String login) {

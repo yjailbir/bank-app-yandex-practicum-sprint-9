@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: notification-service
+  cloud:
+    consul:
+      host: consul
+      port: 8500
+  config:
+    import: configserver:http://config-service:8080

@@ -44,5 +44,7 @@
         <module>ui-service</module>
         <module>accounts-service</module>
         <module>blocker-service</module>
+        <module>notification-service</module>
+        <module>cash-service</module>
     </modules>
 </project>

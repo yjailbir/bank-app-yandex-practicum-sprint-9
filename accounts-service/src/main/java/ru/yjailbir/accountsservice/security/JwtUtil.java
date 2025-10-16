@@ -1,12 +1,14 @@
 package ru.yjailbir.accountsservice.security;
 
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.security.SignatureException;
+import io.jsonwebtoken.security.Keys;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import ru.yjailbir.accountsservice.entity.UserEntity;
 
+import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 @Component
@@ -16,36 +18,63 @@ public class JwtUtil {
     @Value("${jwt.secret}")
     private String jwtSecret;
 
+    private SecretKey getSigningKey() {
+        return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+    }
+
     public String validateJwtToken(String authToken) {
-        String error = "ok";
-        try {
-            Jwts.parser().setSigningKey(jwtSecret).build().parseClaimsJws(authToken);
-            return error;
-        } catch (SignatureException e) {
-            error = "Invalid JWT signature";
-        } catch (MalformedJwtException e) {
-            error = "Invalid JWT token";
-        } catch (ExpiredJwtException e) {
-            error = "Expired JWT token";
-        } catch (UnsupportedJwtException e) {
-            error = "Unsupported JWT token";
-        } catch (IllegalArgumentException e) {
-            error = "JWT claims string is empty";
+        if (authToken == null || authToken.trim().isEmpty()) {
+            return "JWT token is empty";
         }
 
-        return error;
+        try {
+            Claims claims = Jwts.parser()
+                    .verifyWith(getSigningKey())
+                    .build()
+                    .parseSignedClaims(authToken)
+                    .getPayload();
+
+            Date expiration = claims.getExpiration();
+            if (expiration != null && expiration.before(new Date())) {
+                return "Expired JWT token";
+            }
+
+            if (claims.getSubject() == null || claims.getSubject().isEmpty()) {
+                return "JWT token does not contain a valid subject";
+            }
+
+            return "ok";
+
+        } catch (io.jsonwebtoken.security.SignatureException e) {
+            return "Invalid JWT signature";
+        } catch (io.jsonwebtoken.MalformedJwtException e) {
+            return "Invalid JWT token format";
+        } catch (io.jsonwebtoken.UnsupportedJwtException e) {
+            return "Unsupported JWT token";
+        } catch (io.jsonwebtoken.security.WeakKeyException e) {
+            return "Weak JWT signing key";
+        } catch (IllegalArgumentException e) {
+            return "JWT claims string is empty or null";
+        } catch (Exception e) {
+            return "JWT validation error: " + e.getMessage();
+        }
     }
 
     public String generateJwtToken(UserEntity user) {
         return Jwts.builder()
-                .setSubject(user.getLogin())
-                .setIssuedAt(new Date())
-                .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
-                .signWith(SignatureAlgorithm.HS512, jwtSecret)
+                .subject(user.getLogin())
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
+                .signWith(getSigningKey(), Jwts.SIG.HS512)
                 .compact();
     }
 
     public String getLoginFromJwtToken(String token) {
-        return Jwts.parser().setSigningKey(jwtSecret).build().parseClaimsJws(token).getBody().getSubject();
+        return Jwts.parser()
+                .verifyWith(getSigningKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .getSubject();
     }
 }

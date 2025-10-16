@@ -1,21 +1,24 @@
 package ru.yjailbir.accountsservice.controller;
 
 import org.springframework.web.bind.annotation.*;
-import ru.yjailbir.commonservice.dto.request.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import ru.yjailbir.commonservice.dto.response.MessageResponseDto;
+import ru.yjailbir.commonslib.client.NotificationClient;
+import ru.yjailbir.commonslib.dto.request.*;
+import ru.yjailbir.commonslib.dto.response.MessageResponseDto;
 import ru.yjailbir.accountsservice.service.UserService;
-import ru.yjailbir.commonservice.dto.response.UserAccountsResponseDto;
-import ru.yjailbir.commonservice.dto.response.UserDataResponseDto;
+import ru.yjailbir.commonslib.dto.response.UserAccountsResponseDto;
+import ru.yjailbir.commonslib.dto.response.UserDataResponseDto;
 
 @RestController
 public class AccountsController {
     private final UserService userService;
+    private final NotificationClient notificationClient;
 
     @Autowired
-    public AccountsController(UserService userService) {
+    public AccountsController(UserService userService, NotificationClient notificationClient) {
         this.userService = userService;
+        this.notificationClient = notificationClient;
     }
 
     @PostMapping("/register")
@@ -39,8 +42,13 @@ public class AccountsController {
     }
 
     @PostMapping("/validate")
-    public String validateToken(@RequestBody EmptyRequestDtoWithToken dto) {
-        return userService.validateToken(dto.token());
+    public ResponseEntity<String> validateToken(@RequestBody EmptyRequestDtoWithToken dto) {
+        String result = userService.validateToken(dto.token());
+        if (result.equals("ok")) {
+            return ResponseEntity.ok("ok");
+        } else {
+            return ResponseEntity.badRequest().body(result);
+        }
     }
 
     @PostMapping("/change-password")
@@ -51,6 +59,10 @@ public class AccountsController {
         } else {
             try {
                 userService.updateUserPassword(dto);
+                notificationClient.sendNotification(
+                        "Пользователь " + userService.getLoginFromToken(dto.token()) + " поменял пароль",
+                        dto.token()
+                );
                 return ResponseEntity.ok(new MessageResponseDto("ok", ""));
             } catch (IllegalArgumentException e) {
                 return ResponseEntity.badRequest().body(new MessageResponseDto("error", e.getMessage()));
@@ -80,6 +92,10 @@ public class AccountsController {
         } else {
             try {
                 userService.updateUser(dto);
+                notificationClient.sendNotification(
+                        "Пользователь " + userService.getLoginFromToken(dto.token()) + " поменял данные пользователя",
+                        dto.token()
+                );
                 return ResponseEntity.ok(new MessageResponseDto("ok", ""));
             } catch (IllegalArgumentException e) {
                 return ResponseEntity.badRequest().body(new MessageResponseDto("error", e.getMessage()));

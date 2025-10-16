@@ -2,16 +2,18 @@ package ru.yjailbir.uiservice.controller;
 
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import ru.yjailbir.commonservice.dto.request.*;
-import ru.yjailbir.commonservice.dto.response.UserAccountsResponseDto;
-import ru.yjailbir.commonservice.dto.response.UserDataResponseDto;
-import ru.yjailbir.commonservice.dto.response.MessageResponseDto;
+import ru.yjailbir.commonslib.dto.request.*;
+import ru.yjailbir.commonslib.dto.response.UserAccountsResponseDto;
+import ru.yjailbir.commonslib.dto.response.UserDataResponseDto;
+import ru.yjailbir.commonslib.dto.response.MessageResponseDto;
+import ru.yjailbir.commonslib.util.AuthorizedHttpEntityFactory;
 
 import java.util.List;
 
@@ -155,21 +157,28 @@ public class MainController {
             return "redirect:/bank";
         } else {
             String token = session.getAttribute("JWT_TOKEN").toString();
-            if (token != null) {
-                ResponseEntity<MessageResponseDto> responseEntity = restTemplate.postForEntity(
-                        "http://accounts-service/cash",
-                        new CashRequestDtoWithToken(dto.currency(), dto.value(), dto.action(), token),
-                        MessageResponseDto.class
-                );
-                MessageResponseDto messageResponseDto = responseEntity.getBody();
 
-                if (messageResponseDto != null) {
-                    if (!responseEntity.getStatusCode().is2xxSuccessful() || !messageResponseDto.status().equals("ok")) {
-                        redirectAttributes.addFlashAttribute("cashErrors", List.of(messageResponseDto.message()));
+            if (token != null) {
+                HttpEntity<CashRequestDtoWithToken> cashRequestEntity =
+                        new AuthorizedHttpEntityFactory<CashRequestDtoWithToken>()
+                                .createHttpEntityWithToken(new CashRequestDtoWithToken(
+                                        dto.currency(), dto.value(), dto.action(), token), token
+                                );
+                ResponseEntity<MessageResponseDto> cashResponseEntity = restTemplate.postForEntity(
+                        "http://cash-service/operate", cashRequestEntity, MessageResponseDto.class
+                );
+                MessageResponseDto cashResponseDto = cashResponseEntity.getBody();
+
+                if (cashResponseDto != null) {
+                    if (!cashResponseEntity.getStatusCode().is2xxSuccessful() || !cashResponseDto.status().equals("ok")) {
+                        redirectAttributes.addFlashAttribute(
+                                "cashErrors", List.of(cashResponseDto.message())
+                        );
                     }
                 } else {
                     redirectAttributes.addFlashAttribute("cashErrors", "Сервис недоступен");
                 }
+
                 return "redirect:/bank";
             } else {
                 return "redirect:/auth/login";

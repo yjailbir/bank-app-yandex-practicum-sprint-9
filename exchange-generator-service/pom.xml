@@ -10,17 +10,12 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>ui-service</artifactId>
+    <artifactId>exchange-generator-service</artifactId>
     <version>1.0</version>
-    <name>ui-service</name>
-    <description>ui-service</description>
-    <packaging>jar</packaging>
+    <name>exchange-generator-service</name>
+    <description>exchange-generator-service</description>
 
     <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-thymeleaf</artifactId>
-        </dependency>
         <dependency>
             <groupId>ru.yjailbir</groupId>
             <artifactId>common</artifactId>

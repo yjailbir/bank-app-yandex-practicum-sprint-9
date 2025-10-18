@@ -59,3 +59,21 @@ services:
     depends_on:
       - consul
       - config-service
+
+  exchange-generator-service:
+    build:
+      context: .
+      dockerfile: exchange-generator-service/Dockerfile
+    container_name: exchange-generator-service
+    depends_on:
+      - consul
+      - config-service
+
+  exchange-service:
+    build:
+      context: .
+      dockerfile: exchange-service/Dockerfile
+    container_name: exchange-service
+    depends_on:
+      - consul
+      - config-service

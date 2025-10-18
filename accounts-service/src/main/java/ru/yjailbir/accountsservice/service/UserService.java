@@ -52,7 +52,7 @@ public class UserService {
         user.getAccounts().addAll(List.of(
                 new AccountEntity("RUB", "Российский рубль", user),
                 new AccountEntity("USD", "Американский доллар", user),
-                new AccountEntity("SPM", "Имперский септим", user)
+                new AccountEntity("ISP", "Имперский септим", user)
         ));
         userRepository.save(user);
     }

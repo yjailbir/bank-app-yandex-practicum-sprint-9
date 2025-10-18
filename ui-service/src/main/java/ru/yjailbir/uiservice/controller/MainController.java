@@ -184,6 +184,5 @@ public class MainController {
                 return "redirect:/auth/login";
             }
         }
-
     }
 }

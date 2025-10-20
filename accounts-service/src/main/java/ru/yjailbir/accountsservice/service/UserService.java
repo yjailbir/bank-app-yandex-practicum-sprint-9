@@ -122,7 +122,7 @@ public class UserService {
         );
     }
 
-    private void changeAccountBalance(AccountEntity account, Integer value, String action) {
+    private void changeAccountBalance(AccountEntity account, Double value, String action) {
         if(value < 0) {
             throw new IllegalArgumentException("Число должно быть неотрицательным!");
         }

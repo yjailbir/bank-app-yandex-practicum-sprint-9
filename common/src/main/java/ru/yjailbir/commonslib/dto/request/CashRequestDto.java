@@ -1,4 +1,4 @@
 package ru.yjailbir.commonslib.dto.request;
 
-public record CashRequestDto(String currency, Integer value, String action) {
+public record CashRequestDto(String currency, Double value, String action) {
 }

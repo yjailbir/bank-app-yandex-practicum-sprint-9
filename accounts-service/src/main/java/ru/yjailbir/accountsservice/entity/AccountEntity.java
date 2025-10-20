@@ -13,7 +13,7 @@ public class AccountEntity {
     @Column(name = "name")
     private String name;
     @Column(name = "balance")
-    private Integer balance;
+    private Double balance;
     @Column(name = "active")
     private Boolean active;
     @ManyToOne(fetch = FetchType.LAZY)
@@ -23,7 +23,7 @@ public class AccountEntity {
     public AccountEntity(String currency, String name, UserEntity user) {
         this.currency = currency;
         this.name = name;
-        this.balance = 0;
+        this.balance = 0.0;
         this.active = false;
         this.user = user;
     }
@@ -43,11 +43,11 @@ public class AccountEntity {
         return name;
     }
 
-    public Integer getBalance() {
+    public Double getBalance() {
         return balance;
     }
 
-    public void setBalance(Integer balance) {
+    public void setBalance(Double balance) {
         this.balance = balance;
     }
 

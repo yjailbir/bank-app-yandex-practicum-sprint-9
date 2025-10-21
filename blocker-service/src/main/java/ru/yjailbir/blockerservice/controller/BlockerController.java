@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import ru.yjailbir.commonslib.dto.request.CashRequestDtoWithToken;
+import ru.yjailbir.commonslib.dto.request.TransferRequestDtoWithToken;
 import ru.yjailbir.commonslib.dto.response.MessageResponseDto;
 
 import java.util.Random;
@@ -13,6 +14,15 @@ import java.util.Random;
 public class BlockerController {
     @PostMapping("/check-cash-operation")
     public ResponseEntity<MessageResponseDto> checkCashOperation(@RequestBody CashRequestDtoWithToken dto){
+        if(new Random().nextInt(11) % 5 == 0) {
+            return ResponseEntity.badRequest().body(new MessageResponseDto("error", "Операция заблокирована"));
+        } else {
+            return ResponseEntity.ok(new MessageResponseDto("ok", ""));
+        }
+    }
+
+    @PostMapping("/check-transfer-operation")
+    public ResponseEntity<MessageResponseDto> checkTransferOperation(@RequestBody TransferRequestDtoWithToken dto){
         if(new Random().nextInt(11) % 5 == 0) {
             return ResponseEntity.badRequest().body(new MessageResponseDto("error", "Операция заблокирована"));
         } else {

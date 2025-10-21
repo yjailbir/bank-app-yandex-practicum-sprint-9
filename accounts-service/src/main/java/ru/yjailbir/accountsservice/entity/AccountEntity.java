@@ -2,6 +2,9 @@ package ru.yjailbir.accountsservice.entity;
 
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 @Entity
 @Table(name = "accounts")
 public class AccountEntity {
@@ -19,6 +22,16 @@ public class AccountEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
+
+    @PrePersist
+    @PreUpdate
+    public void checkConstraints() {
+        if (balance != null) {
+            balance = BigDecimal.valueOf(balance)
+                    .setScale(2, RoundingMode.HALF_UP)
+                    .doubleValue();
+        }
+    }
 
     public AccountEntity(String currency, String name, UserEntity user) {
         this.currency = currency;

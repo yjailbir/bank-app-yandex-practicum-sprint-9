@@ -77,3 +77,12 @@ services:
     depends_on:
       - consul
       - config-service
+
+  transfer-service:
+    build:
+      context: .
+      dockerfile: transfer-service/Dockerfile
+    container_name: transfer-service
+    depends_on:
+      - consul
+      - config-service

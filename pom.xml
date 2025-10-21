@@ -48,5 +48,6 @@
         <module>cash-service</module>
         <module>exchange-generator-service</module>
         <module>exchange-service</module>
+        <module>transfer-service</module>
     </modules>
 </project>

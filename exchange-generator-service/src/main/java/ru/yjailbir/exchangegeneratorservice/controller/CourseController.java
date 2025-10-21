@@ -27,7 +27,7 @@ public class CourseController {
                         "Американский доллар", "USD", Math.round(course.rubForUsd() * 100.0) / 100.0
                 ),
                 new CurrencyRateDto(
-                        "Имперский септим", "ISM",
+                        "Имперский септим", "ISP",
                         Math.round(course.rubForIsm() * 100.0) / 100.0
                 )
         );

@@ -50,13 +50,13 @@ public class CashController {
                     }
                 } else {
                     return ResponseEntity.badRequest().body(new MessageResponseDto(
-                            "error", "Сервис наличных недоступен"
+                            "error", "Операции с наличными недоступны"
                     ));
                 }
 
                 notificationClient.sendNotification(
-                        "В сервисе наличных произведена операция " + dto.action() + " на сумму " + dto.value()
-                                + " " + dto.currency() + " пользователем с токеном " + dto.token(), dto.token()
+                        "В сервисе наличных произведена операция " + dto.action() + " на сумму " + dto.value() +
+                                " " + dto.currency() + " пользователем с токеном " + dto.token(), dto.token()
                 );
                 
                 return ResponseEntity.ok(messageResponseDto);

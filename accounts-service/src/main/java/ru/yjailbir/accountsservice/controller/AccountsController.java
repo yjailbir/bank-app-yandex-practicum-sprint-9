@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import ru.yjailbir.commonslib.client.NotificationClient;
 import ru.yjailbir.commonslib.dto.request.*;
+import ru.yjailbir.commonslib.dto.response.AllUserLoginsResponseDto;
 import ru.yjailbir.commonslib.dto.response.MessageResponseDto;
 import ru.yjailbir.accountsservice.service.UserService;
 import ru.yjailbir.commonslib.dto.response.UserAccountsResponseDto;
@@ -97,7 +98,7 @@ public class AccountsController {
                         dto.token()
                 );
                 return ResponseEntity.ok(new MessageResponseDto("ok", ""));
-            } catch (IllegalArgumentException e) {
+            } catch (IllegalArgumentException | IllegalStateException e) {
                 return ResponseEntity.badRequest().body(new MessageResponseDto("error", e.getMessage()));
             }
         }
@@ -125,6 +126,31 @@ public class AccountsController {
         } else {
             try {
                 userService.doCashOperation(dto);
+                return ResponseEntity.ok(new MessageResponseDto("ok", ""));
+            } catch (IllegalArgumentException e) {
+                return ResponseEntity.badRequest().body(new MessageResponseDto("error", e.getMessage()));
+            }
+        }
+    }
+
+    @PostMapping("/all-logins")
+    public ResponseEntity<AllUserLoginsResponseDto> getAllLogins(@RequestBody EmptyRequestDtoWithToken dto) {
+        String tokenValidationResult = userService.validateToken(dto.token());
+        if (!tokenValidationResult.equals("ok")) {
+            return ResponseEntity.badRequest().body(new AllUserLoginsResponseDto("error", tokenValidationResult));
+        } else {
+            return ResponseEntity.ok(userService.getAllUserLogins());
+        }
+    }
+
+    @PostMapping("/transfer")
+    public ResponseEntity<MessageResponseDto> transfer(@RequestBody ExchangedTransferDtoWithToken dto) {
+        String tokenValidationResult = userService.validateToken(dto.token());
+        if (!tokenValidationResult.equals("ok")) {
+            return ResponseEntity.badRequest().body(new MessageResponseDto("error", tokenValidationResult));
+        } else {
+            try {
+                userService.doTransfer(dto);
                 return ResponseEntity.ok(new MessageResponseDto("ok", ""));
             } catch (IllegalArgumentException e) {
                 return ResponseEntity.badRequest().body(new MessageResponseDto("error", e.getMessage()));

@@ -1,5 +1,6 @@
 package ru.yjailbir.accountsservice.service;
 
+import org.springframework.transaction.annotation.Transactional;
 import ru.yjailbir.accountsservice.entity.AccountEntity;
 import ru.yjailbir.accountsservice.repository.AccountsRepository;
 import ru.yjailbir.commonslib.dto.CurrencyDto;
@@ -11,6 +12,7 @@ import ru.yjailbir.accountsservice.repository.UserRepository;
 import ru.yjailbir.accountsservice.security.JwtUtil;
 import ru.yjailbir.commonslib.dto.AccountDto;
 import ru.yjailbir.commonslib.dto.request.*;
+import ru.yjailbir.commonslib.dto.response.AllUserLoginsResponseDto;
 import ru.yjailbir.commonslib.dto.response.UserAccountsResponseDto;
 import ru.yjailbir.commonslib.dto.response.UserDataResponseDto;
 
@@ -123,14 +125,17 @@ public class UserService {
     }
 
     private void changeAccountBalance(AccountEntity account, Double value, String action) {
-        if(value < 0) {
+        if (value < 0) {
             throw new IllegalArgumentException("Число должно быть неотрицательным!");
+        }
+        if (!account.isActive()) {
+            throw new IllegalArgumentException("Пользователь не имеет счёта в выбранной валюте!");
         }
 
         switch (action) {
             case "PUT" -> account.setBalance(account.getBalance() + value);
             case "GET" -> {
-                if(account.getBalance() < value) {
+                if (account.getBalance() < value) {
                     throw new IllegalArgumentException("Недостаточно средств!");
                 } else {
                     account.setBalance(account.getBalance() - value);
@@ -140,6 +145,39 @@ public class UserService {
         }
 
         accountsRepository.save(account);
+    }
+
+    public AllUserLoginsResponseDto getAllUserLogins() {
+        return new AllUserLoginsResponseDto("ok", userRepository.findAllLogins());
+    }
+
+    @Transactional
+    public void doTransfer(ExchangedTransferDtoWithToken dto) {
+        UserEntity userFrom = getUserEntityByLogin(jwtUtil.getLoginFromJwtToken(dto.token()));
+        if (dto.toLogin().equals(jwtUtil.getLoginFromJwtToken(dto.token()))) {
+            changeAccountBalance(
+                    accountsRepository.findByCurrencyAndUser_Id(dto.fromCurrency(), userFrom.getId()),
+                    dto.fromValue(),
+                    "GET"
+            );
+            changeAccountBalance(
+                    accountsRepository.findByCurrencyAndUser_Id(dto.toCurrency(), userFrom.getId()),
+                    dto.toValue(),
+                    "PUT"
+            );
+        } else {
+            UserEntity userTo = getUserEntityByLogin(dto.toLogin());
+            changeAccountBalance(
+                    accountsRepository.findByCurrencyAndUser_Id(dto.fromCurrency(), userFrom.getId()),
+                    dto.fromValue(),
+                    "GET"
+            );
+            changeAccountBalance(
+                    accountsRepository.findByCurrencyAndUser_Id(dto.toCurrency(), userTo.getId()),
+                    dto.toValue(),
+                    "PUT"
+            );
+        }
     }
 
     public String validateToken(String token) {

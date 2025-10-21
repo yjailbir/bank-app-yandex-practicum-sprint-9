@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ru.yjailbir.commonslib.dto.request.*;
+import ru.yjailbir.commonslib.dto.response.AllUserLoginsResponseDto;
 import ru.yjailbir.commonslib.dto.response.UserAccountsResponseDto;
 import ru.yjailbir.commonslib.dto.response.UserDataResponseDto;
 import ru.yjailbir.commonslib.dto.response.MessageResponseDto;
@@ -77,9 +78,35 @@ public class MainController {
                     }
                 } else {
                     model.addAttribute("currency", userAccountsResponseDto.accounts);
+                    model.addAttribute("otherCurrency", userAccountsResponseDto.accounts);
                 }
             } else {
                 model.addAttribute("currency", "Сервис недоступен");
+            }
+
+            ResponseEntity<AllUserLoginsResponseDto> allUserLoginsResponseEntity = restTemplate.postForEntity(
+                    "http://accounts-service/all-logins",
+                    new EmptyRequestDtoWithToken(token), AllUserLoginsResponseDto.class
+            );
+            AllUserLoginsResponseDto allUserLoginsResponseDto = allUserLoginsResponseEntity.getBody();
+
+            if (allUserLoginsResponseDto != null) {
+                if (
+                        !allUserLoginsResponseEntity.getStatusCode().is2xxSuccessful() ||
+                                !allUserLoginsResponseDto.status.equals("ok")
+                ) {
+                    model.addAttribute("users", List.of(allUserLoginsResponseDto.message));
+                } else {
+                    List<String> logins = allUserLoginsResponseDto.logins.stream().filter(
+                            x -> {
+                                assert userDataResponseDto != null;
+                                return !x.equals(userDataResponseDto.login);
+                            }
+                    ).toList();
+                    model.addAttribute("users", logins);
+                }
+            } else {
+                model.addAttribute("users", List.of("Сервис недоступен"));
             }
         }
 
@@ -177,6 +204,48 @@ public class MainController {
                     }
                 } else {
                     redirectAttributes.addFlashAttribute("cashErrors", "Сервис недоступен");
+                }
+
+                return "redirect:/bank";
+            } else {
+                return "redirect:/auth/login";
+            }
+        }
+    }
+
+    @PostMapping("/transfer")
+    public String transfer(
+            @ModelAttribute TransferRequestDto dto,
+            HttpSession session,
+            RedirectAttributes redirectAttributes
+    ) {
+        if (dto.fromCurrency() == null) {
+            redirectAttributes.addFlashAttribute("cashErrors", List.of("Нет ни одного открытого счёта!"));
+            return "redirect:/bank";
+        } else {
+            String token = session.getAttribute("JWT_TOKEN").toString();
+
+            if (token != null) {
+                HttpEntity<TransferRequestDtoWithToken> transferRequestEntity =
+                        new AuthorizedHttpEntityFactory<TransferRequestDtoWithToken>()
+                                .createHttpEntityWithToken(
+                                        new TransferRequestDtoWithToken(
+                                                dto.fromCurrency(), dto.toCurrency(), dto.value(), dto.toLogin(), token
+                                        ), token
+                                );
+                ResponseEntity<MessageResponseDto> transferResponseEntity = restTemplate.postForEntity(
+                        "http://transfer-service/transfer", transferRequestEntity, MessageResponseDto.class
+                );
+                MessageResponseDto transferResponseDto = transferResponseEntity.getBody();
+
+                if (transferResponseDto != null) {
+                    if (!transferResponseEntity.getStatusCode().is2xxSuccessful() || !transferResponseDto.status().equals("ok")) {
+                        redirectAttributes.addFlashAttribute(
+                                "transferErrors", List.of(transferResponseDto.message())
+                        );
+                    }
+                } else {
+                    redirectAttributes.addFlashAttribute("transferErrors", "Сервис недоступен");
                 }
 
                 return "redirect:/bank";

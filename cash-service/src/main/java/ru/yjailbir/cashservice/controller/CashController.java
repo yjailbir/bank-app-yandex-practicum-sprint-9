@@ -5,66 +5,51 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestTemplate;
-import ru.yjailbir.commonslib.client.BlockerClient;
+import ru.yjailbir.cashservice.client.AccountsServiceClient;
+import ru.yjailbir.commonslib.client.BlockerServiceClient;
 import ru.yjailbir.commonslib.dto.request.CashRequestDtoWithToken;
 import ru.yjailbir.commonslib.dto.response.MessageResponseDto;
 import ru.yjailbir.commonslib.client.NotificationClient;
 
 @RestController
 public class CashController {
-    private final RestTemplate restTemplate;
+    private final AccountsServiceClient accountsServiceClient;
     private final NotificationClient notificationClient;
-    private final BlockerClient blockerClient;
+    private final BlockerServiceClient blockerServiceClient;
 
     @Autowired
-    public CashController(RestTemplate restTemplate, NotificationClient notificationClient, BlockerClient blockerClient) {
-        restTemplate.setErrorHandler(response -> {
-            // Чтобы не летели исключения на 4хх и 5хх коды. Обрабатываем коды вручную
-            return false;
-        });
-        this.restTemplate = restTemplate;
+    public CashController(
+            AccountsServiceClient accountsServiceClient,
+            NotificationClient notificationClient,
+            BlockerServiceClient blockerServiceClient
+    ) {
+        this.accountsServiceClient = accountsServiceClient;
         this.notificationClient = notificationClient;
-        this.blockerClient = blockerClient;
+        this.blockerServiceClient = blockerServiceClient;
     }
 
     @PostMapping("/operate")
     public ResponseEntity<MessageResponseDto> cashOperation(@RequestBody CashRequestDtoWithToken dto) {
-        ResponseEntity<MessageResponseDto> blockerResponseEntity = blockerClient.checkCashOperation(dto);
+        ResponseEntity<MessageResponseDto> blockerResponseEntity = blockerServiceClient.checkCashOperation(dto);
         MessageResponseDto blockerResponseDto = blockerResponseEntity.getBody();
 
-        if (blockerResponseDto != null) {
-            if (!blockerResponseEntity.getStatusCode().is2xxSuccessful() || !blockerResponseDto.status().equals("ok")) {
-                return ResponseEntity.badRequest().body(blockerResponseDto);
-            } else {
-                ResponseEntity<MessageResponseDto> responseEntity = restTemplate.postForEntity(
-                        "http://accounts-service/cash",
-                        dto,
-                        MessageResponseDto.class
-                );
-                MessageResponseDto messageResponseDto = responseEntity.getBody();
-
-                if (messageResponseDto != null) {
-                    if (!responseEntity.getStatusCode().is2xxSuccessful() || !messageResponseDto.status().equals("ok")) {
-                        return ResponseEntity.badRequest().body(messageResponseDto);
-                    }
-                } else {
-                    return ResponseEntity.badRequest().body(new MessageResponseDto(
-                            "error", "Операции с наличными недоступны"
-                    ));
-                }
-
-                notificationClient.sendNotification(
-                        "В сервисе наличных произведена операция " + dto.action() + " на сумму " + dto.value() +
-                                " " + dto.currency() + " пользователем с токеном " + dto.token(), dto.token()
-                );
-                
-                return ResponseEntity.ok(messageResponseDto);
-            }
+        if (!blockerResponseEntity.getStatusCode().is2xxSuccessful() || !blockerResponseDto.status().equals("ok")) {
+            return ResponseEntity.badRequest().body(blockerResponseDto);
         } else {
-            return ResponseEntity.badRequest().body(new MessageResponseDto(
-                    "error", "Сервис проверки подозрительной активности недоступен"
-            ));
+            ResponseEntity<MessageResponseDto> responseEntity = accountsServiceClient.doCashOperation(dto);
+            MessageResponseDto messageResponseDto = responseEntity.getBody();
+
+            assert messageResponseDto != null;
+            if (!responseEntity.getStatusCode().is2xxSuccessful() || !messageResponseDto.status().equals("ok")) {
+                return ResponseEntity.badRequest().body(messageResponseDto);
+            }
+
+            notificationClient.sendNotification(
+                    "В сервисе наличных произведена операция " + dto.action() + " на сумму " + dto.value() +
+                            " " + dto.currency() + " пользователем с токеном " + dto.token(), dto.token()
+            );
+
+            return ResponseEntity.ok(messageResponseDto);
         }
     }
 }

@@ -1,45 +1,34 @@
 package ru.yjailbir.exchangeservice.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestTemplate;
 import ru.yjailbir.commonslib.dto.CurrencyRateDto;
 import ru.yjailbir.commonslib.dto.request.ExchangeRequestDto;
 import ru.yjailbir.commonslib.dto.response.ExchangeResponseDto;
+import ru.yjailbir.exchangeservice.client.ExchangeGeneratorClient;
 
 import java.util.List;
 
 @RestController
 public class ExchangeController {
-    private final RestTemplate restTemplate;
+    private final ExchangeGeneratorClient exchangeGeneratorClient;
 
     @Autowired
-    public ExchangeController(RestTemplate restTemplate) {
-        restTemplate.setErrorHandler(response -> {
-            // Чтобы не летели исключения на 4хх и 5хх коды. Обрабатываем коды вручную
-            return false;
-        });
-        this.restTemplate = restTemplate;
+    public ExchangeController(ExchangeGeneratorClient exchangeGeneratorClient) {
+        this.exchangeGeneratorClient = exchangeGeneratorClient;
     }
 
     @PostMapping("/exchange")
     public ResponseEntity<ExchangeResponseDto> exchange(@RequestBody ExchangeRequestDto dto) {
-        ResponseEntity<List<CurrencyRateDto>> cashResponseEntity = restTemplate.exchange(
-                "http://exchange-generator-service/course",
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<>() {
-                }
-        );
-        List<CurrencyRateDto> rates = cashResponseEntity.getBody();
-        if (rates == null) {
+        ResponseEntity<List<CurrencyRateDto>> cashResponseEntity = exchangeGeneratorClient.getExchangeRate();
+        if(!cashResponseEntity.getStatusCode().is2xxSuccessful()) {
             return ResponseEntity.badRequest().body(new ExchangeResponseDto("error", "Курсы недоступны"));
         } else {
+            List<CurrencyRateDto> rates = cashResponseEntity.getBody();
+            assert rates != null;
             try {
                 double result;
                 if (dto.currencyFrom().equals("RUB")) {

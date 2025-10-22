@@ -2,34 +2,38 @@ package ru.yjailbir.uiservice.controller;
 
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ru.yjailbir.commonslib.dto.request.*;
 import ru.yjailbir.commonslib.dto.response.AllUserLoginsResponseDto;
 import ru.yjailbir.commonslib.dto.response.UserAccountsResponseDto;
 import ru.yjailbir.commonslib.dto.response.UserDataResponseDto;
 import ru.yjailbir.commonslib.dto.response.MessageResponseDto;
-import ru.yjailbir.commonslib.util.AuthorizedHttpEntityFactory;
+import ru.yjailbir.uiservice.client.AccountsServiceClient;
+import ru.yjailbir.uiservice.client.CashServiceClient;
+import ru.yjailbir.uiservice.client.TransferServiceClient;
 
 import java.util.List;
 
 @Controller
 @RequestMapping("/bank")
 public class MainController {
-    private final RestTemplate restTemplate;
+    private final AccountsServiceClient accountsServiceClient;
+    private final CashServiceClient cashServiceClient;
+    private final TransferServiceClient transferServiceClient;
 
     @Autowired
-    public MainController(RestTemplate restTemplate) {
-        restTemplate.setErrorHandler(response -> {
-            // Чтобы не летели исключения на 4хх и 5хх коды. Обрабатываем коды вручную
-            return false;
-        });
-        this.restTemplate = restTemplate;
+    public MainController(
+            AccountsServiceClient accountsServiceClient,
+            CashServiceClient cashServiceClient,
+            TransferServiceClient transferServiceClient
+    ) {
+        this.accountsServiceClient = accountsServiceClient;
+        this.cashServiceClient = cashServiceClient;
+        this.transferServiceClient = transferServiceClient;
     }
 
     @GetMapping
@@ -38,76 +42,56 @@ public class MainController {
             return "redirect:/auth/login";
         } else {
             String token = session.getAttribute("JWT_TOKEN").toString();
-            ResponseEntity<UserDataResponseDto> userDataResponseEntity = restTemplate.postForEntity(
-                    "http://accounts-service/user-data",
-                    new EmptyRequestDtoWithToken(token), UserDataResponseDto.class
-            );
+            ResponseEntity<UserDataResponseDto> userDataResponseEntity = accountsServiceClient.getUserData(token);
             UserDataResponseDto userDataResponseDto = userDataResponseEntity.getBody();
 
-            if (userDataResponseDto != null) {
-                if (!userDataResponseEntity.getStatusCode().is2xxSuccessful() || !userDataResponseDto.status.equals("ok")) {
-                    if (!model.containsAttribute("userAccountsErrors")) {
-                        model.addAttribute("userAccountsErrors", List.of(userDataResponseDto.message));
-                    }
-                } else {
-                    model.addAttribute("login", userDataResponseDto.login);
-                    model.addAttribute("name", userDataResponseDto.name);
-                    model.addAttribute("surname", userDataResponseDto.surname);
-                    model.addAttribute("accounts", userDataResponseDto.accounts);
+            assert userDataResponseDto != null;
+            if (!userDataResponseEntity.getStatusCode().is2xxSuccessful() || !userDataResponseDto.status.equals("ok")) {
+                if (!model.containsAttribute("userAccountsErrors")) {
+                    model.addAttribute("userAccountsErrors", List.of(userDataResponseDto.message));
                 }
             } else {
-                model.addAttribute("login", "Сервис недоступен");
-                model.addAttribute("name", "Сервис недоступен");
-                model.addAttribute("surname", "Сервис недоступен");
-                model.addAttribute("accounts", "Сервис недоступен");
+                model.addAttribute("login", userDataResponseDto.login);
+                model.addAttribute("name", userDataResponseDto.name);
+                model.addAttribute("surname", userDataResponseDto.surname);
+                model.addAttribute("accounts", userDataResponseDto.accounts);
             }
 
-            ResponseEntity<UserAccountsResponseDto> userAccountsResponseEntity = restTemplate.postForEntity(
-                    "http://accounts-service/active-accounts",
-                    new EmptyRequestDtoWithToken(token), UserAccountsResponseDto.class
-            );
+            ResponseEntity<UserAccountsResponseDto> userAccountsResponseEntity =
+                    accountsServiceClient.getUserAccounts(token);
             UserAccountsResponseDto userAccountsResponseDto = userAccountsResponseEntity.getBody();
 
-            if (userAccountsResponseDto != null) {
-                if (
-                        !userAccountsResponseEntity.getStatusCode().is2xxSuccessful() ||
-                                !userAccountsResponseDto.status.equals("ok")
-                ) {
-                    if (!model.containsAttribute("userAccountsErrors")) {
-                        model.addAttribute("cashErrors", List.of(userAccountsResponseDto.message));
-                    }
-                } else {
-                    model.addAttribute("currency", userAccountsResponseDto.accounts);
-                    model.addAttribute("otherCurrency", userAccountsResponseDto.accounts);
+            assert userAccountsResponseDto != null;
+            if (
+                    !userAccountsResponseEntity.getStatusCode().is2xxSuccessful() ||
+                            !userAccountsResponseDto.status.equals("ok")
+            ) {
+                if (!model.containsAttribute("userAccountsErrors")) {
+                    model.addAttribute("cashErrors", List.of(userAccountsResponseDto.message));
                 }
             } else {
-                model.addAttribute("currency", "Сервис недоступен");
+                model.addAttribute("currency", userAccountsResponseDto.accounts);
+                model.addAttribute("otherCurrency", userAccountsResponseDto.accounts);
             }
 
-            ResponseEntity<AllUserLoginsResponseDto> allUserLoginsResponseEntity = restTemplate.postForEntity(
-                    "http://accounts-service/all-logins",
-                    new EmptyRequestDtoWithToken(token), AllUserLoginsResponseDto.class
-            );
+
+            ResponseEntity<AllUserLoginsResponseDto> allUserLoginsResponseEntity =
+                    accountsServiceClient.getAllUserLogins(token);
             AllUserLoginsResponseDto allUserLoginsResponseDto = allUserLoginsResponseEntity.getBody();
 
-            if (allUserLoginsResponseDto != null) {
-                if (
-                        !allUserLoginsResponseEntity.getStatusCode().is2xxSuccessful() ||
-                                !allUserLoginsResponseDto.status.equals("ok")
-                ) {
-                    model.addAttribute("users", List.of(allUserLoginsResponseDto.message));
-                } else {
-                    List<String> logins = allUserLoginsResponseDto.logins.stream().filter(
-                            x -> {
-                                assert userDataResponseDto != null;
-                                return !x.equals(userDataResponseDto.login);
-                            }
-                    ).toList();
-                    model.addAttribute("users", logins);
-                }
+            assert allUserLoginsResponseDto != null;
+            if (
+                    !allUserLoginsResponseEntity.getStatusCode().is2xxSuccessful() ||
+                            !allUserLoginsResponseDto.status.equals("ok")
+            ) {
+                model.addAttribute("users", List.of(allUserLoginsResponseDto.message));
             } else {
-                model.addAttribute("users", List.of("Сервис недоступен"));
+                List<String> logins = allUserLoginsResponseDto.logins.stream().filter(
+                        x -> !x.equals(userDataResponseDto.login)
+                ).toList();
+                model.addAttribute("users", logins);
             }
+
         }
 
         return "main";
@@ -125,19 +109,14 @@ public class MainController {
         } else {
             String token = session.getAttribute("JWT_TOKEN").toString();
             if (token != null) {
-                ResponseEntity<MessageResponseDto> responseEntity = restTemplate.postForEntity(
-                        "http://accounts-service/change-password",
-                        new PasswordChangeRequestDtoWithToken(dto.password(), token), MessageResponseDto.class
-                );
+                ResponseEntity<MessageResponseDto> responseEntity = accountsServiceClient.changePassword(token, dto);
                 MessageResponseDto messageResponseDto = responseEntity.getBody();
 
-                if (messageResponseDto != null) {
-                    if (!responseEntity.getStatusCode().is2xxSuccessful() || !messageResponseDto.status().equals("ok")) {
-                        redirectAttributes.addFlashAttribute("passwordErrors", List.of(messageResponseDto.message()));
-                    }
-                } else {
-                    redirectAttributes.addFlashAttribute("passwordErrors", List.of("Сервис недоступен"));
+                assert messageResponseDto != null;
+                if (!responseEntity.getStatusCode().is2xxSuccessful() || !messageResponseDto.status().equals("ok")) {
+                    redirectAttributes.addFlashAttribute("passwordErrors", List.of(messageResponseDto.message()));
                 }
+
                 return "redirect:/bank";
             } else {
                 return "redirect:/auth/login";
@@ -153,20 +132,14 @@ public class MainController {
     ) {
         String token = session.getAttribute("JWT_TOKEN").toString();
         if (token != null) {
-            ResponseEntity<MessageResponseDto> responseEntity = restTemplate.postForEntity(
-                    "http://accounts-service/edit",
-                    new UserEditRequestDtoWithToken(dto.name(), dto.surname(), dto.activeAccounts(), token),
-                    MessageResponseDto.class
-            );
+            ResponseEntity<MessageResponseDto> responseEntity = accountsServiceClient.editUser(token, dto);
             MessageResponseDto messageResponseDto = responseEntity.getBody();
 
-            if (messageResponseDto != null) {
-                if (!responseEntity.getStatusCode().is2xxSuccessful() || !messageResponseDto.status().equals("ok")) {
-                    redirectAttributes.addFlashAttribute("userAccountsErrors", List.of(messageResponseDto.message()));
-                }
-            } else {
-                redirectAttributes.addFlashAttribute("userAccountsErrors", List.of("Сервис недоступен"));
+            assert messageResponseDto != null;
+            if (!responseEntity.getStatusCode().is2xxSuccessful() || !messageResponseDto.status().equals("ok")) {
+                redirectAttributes.addFlashAttribute("userAccountsErrors", List.of(messageResponseDto.message()));
             }
+
             return "redirect:/bank";
         } else {
             return "redirect:/auth/login";
@@ -186,24 +159,15 @@ public class MainController {
             String token = session.getAttribute("JWT_TOKEN").toString();
 
             if (token != null) {
-                HttpEntity<CashRequestDtoWithToken> cashRequestEntity =
-                        new AuthorizedHttpEntityFactory<CashRequestDtoWithToken>()
-                                .createHttpEntityWithToken(new CashRequestDtoWithToken(
-                                        dto.currency(), dto.value(), dto.action(), token), token
-                                );
-                ResponseEntity<MessageResponseDto> cashResponseEntity = restTemplate.postForEntity(
-                        "http://cash-service/operate", cashRequestEntity, MessageResponseDto.class
-                );
+
+                ResponseEntity<MessageResponseDto> cashResponseEntity = cashServiceClient.doCash(token, dto);
                 MessageResponseDto cashResponseDto = cashResponseEntity.getBody();
 
-                if (cashResponseDto != null) {
-                    if (!cashResponseEntity.getStatusCode().is2xxSuccessful() || !cashResponseDto.status().equals("ok")) {
-                        redirectAttributes.addFlashAttribute(
-                                "cashErrors", List.of(cashResponseDto.message())
-                        );
-                    }
-                } else {
-                    redirectAttributes.addFlashAttribute("cashErrors", "Сервис недоступен");
+                assert cashResponseDto != null;
+                if (!cashResponseEntity.getStatusCode().is2xxSuccessful() || !cashResponseDto.status().equals("ok")) {
+                    redirectAttributes.addFlashAttribute(
+                            "cashErrors", List.of(cashResponseDto.message())
+                    );
                 }
 
                 return "redirect:/bank";
@@ -226,26 +190,15 @@ public class MainController {
             String token = session.getAttribute("JWT_TOKEN").toString();
 
             if (token != null) {
-                HttpEntity<TransferRequestDtoWithToken> transferRequestEntity =
-                        new AuthorizedHttpEntityFactory<TransferRequestDtoWithToken>()
-                                .createHttpEntityWithToken(
-                                        new TransferRequestDtoWithToken(
-                                                dto.fromCurrency(), dto.toCurrency(), dto.value(), dto.toLogin(), token
-                                        ), token
-                                );
-                ResponseEntity<MessageResponseDto> transferResponseEntity = restTemplate.postForEntity(
-                        "http://transfer-service/transfer", transferRequestEntity, MessageResponseDto.class
-                );
+
+                ResponseEntity<MessageResponseDto> transferResponseEntity = transferServiceClient.doTransfer(token, dto);
                 MessageResponseDto transferResponseDto = transferResponseEntity.getBody();
 
-                if (transferResponseDto != null) {
-                    if (!transferResponseEntity.getStatusCode().is2xxSuccessful() || !transferResponseDto.status().equals("ok")) {
-                        redirectAttributes.addFlashAttribute(
-                                "transferErrors", List.of(transferResponseDto.message())
-                        );
-                    }
-                } else {
-                    redirectAttributes.addFlashAttribute("transferErrors", "Сервис недоступен");
+                assert transferResponseDto != null;
+                if (!transferResponseEntity.getStatusCode().is2xxSuccessful() || !transferResponseDto.status().equals("ok")) {
+                    redirectAttributes.addFlashAttribute(
+                            "transferErrors", List.of(transferResponseDto.message())
+                    );
                 }
 
                 return "redirect:/bank";

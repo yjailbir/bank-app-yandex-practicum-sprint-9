@@ -1,11 +1,3 @@
-server:
-  ssl:
-    enabled: true
-    key-store: classpath:cert.p12
-    key-store-password: secret
-    key-store-type: PKCS12
-    key-alias: ui-service
-
 resilience4j:
   retry:
     instances:
@@ -16,14 +8,7 @@ resilience4j:
           - java.io.IOException
           - org.springframework.web.client.ResourceAccessException
           - org.springframework.web.client.HttpServerErrorException
-      cashService:
-        maxAttempts: 3
-        waitDuration: 2s
-        retryExceptions:
-          - java.io.IOException
-          - org.springframework.web.client.ResourceAccessException
-          - org.springframework.web.client.HttpServerErrorException
-      transferService:
+      blockerService:
         maxAttempts: 3
         waitDuration: 2s
         retryExceptions:
@@ -37,12 +22,7 @@ resilience4j:
         slidingWindowSize: 5
         failureRateThreshold: 50
         waitDurationInOpenState: 5s
-      cashService:
-        registerHealthIndicator: true
-        slidingWindowSize: 5
-        failureRateThreshold: 50
-        waitDurationInOpenState: 5s
-      transferService:
+      blockerService:
         registerHealthIndicator: true
         slidingWindowSize: 5
         failureRateThreshold: 50

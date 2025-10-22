@@ -4,7 +4,7 @@ import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
-import ru.yjailbir.commonslib.client.BlockerClient;
+import ru.yjailbir.commonslib.client.BlockerServiceClient;
 import ru.yjailbir.commonslib.client.NotificationClient;
 
 @Configuration
@@ -21,7 +21,7 @@ public class CommonConfiguration {
     }
 
     @Bean
-    public BlockerClient blockerClient(){
-        return new BlockerClient(restTemplate());
+    public BlockerServiceClient blockerClient(){
+        return new BlockerServiceClient(restTemplate());
     }
 }

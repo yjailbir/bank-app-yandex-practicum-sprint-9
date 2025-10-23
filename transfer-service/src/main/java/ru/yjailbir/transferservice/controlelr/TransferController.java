@@ -39,6 +39,7 @@ public class TransferController {
         ResponseEntity<MessageResponseDto> blockerResponseEntity = blockerServiceClient.checkTransferOperation(dto);
         MessageResponseDto blockerResponseDto = blockerResponseEntity.getBody();
 
+        assert blockerResponseDto != null;
         if (!blockerResponseEntity.getStatusCode().is2xxSuccessful() || !blockerResponseDto.status().equals("ok")) {
             return ResponseEntity.badRequest().body(blockerResponseDto);
         } else {

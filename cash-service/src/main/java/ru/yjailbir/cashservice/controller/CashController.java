@@ -33,6 +33,7 @@ public class CashController {
         ResponseEntity<MessageResponseDto> blockerResponseEntity = blockerServiceClient.checkCashOperation(dto);
         MessageResponseDto blockerResponseDto = blockerResponseEntity.getBody();
 
+        assert blockerResponseDto != null;
         if (!blockerResponseEntity.getStatusCode().is2xxSuccessful() || !blockerResponseDto.status().equals("ok")) {
             return ResponseEntity.badRequest().body(blockerResponseDto);
         } else {

@@ -14,7 +14,7 @@ import ru.yjailbir.commonslib.util.AuthorizedHttpEntityFactory;
 
 @Service
 public class BlockerServiceClient {
-    RestTemplate restTemplate;
+    private final RestTemplate restTemplate;
     private final String errorMessage = "Сервис проверки подозрительной активности недоступен";
     private final String url = "http://blocker-service/";
 

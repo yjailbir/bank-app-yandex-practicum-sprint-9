@@ -9,7 +9,7 @@ import ru.yjailbir.commonslib.util.AuthorizedHttpEntityFactory;
 
 @Service
 public class NotificationClient {
-    RestTemplate restTemplate;
+    private final RestTemplate restTemplate;
 
     @Autowired
     public NotificationClient(RestTemplate restTemplate) {

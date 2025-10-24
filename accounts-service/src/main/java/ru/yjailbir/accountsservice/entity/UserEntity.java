@@ -57,7 +57,7 @@ public class UserEntity {
         return surname;
     }
 
-    public void setSurname(String surname) {}
+    public void setSurname(String surname) {this.surname = surname;}
 
     public String getName() {
         return name;
@@ -77,5 +77,9 @@ public class UserEntity {
 
     public void setAccounts(List<AccountEntity> accounts) {
         this.accounts = accounts;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }

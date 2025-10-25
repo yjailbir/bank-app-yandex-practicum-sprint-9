@@ -25,7 +25,7 @@ public class CourseController {
     @GetMapping("/rates")
     public ResponseEntity<List<CurrencyRateDto>> getRates() {
         ResponseEntity<List<CurrencyRateDto>> cashResponseEntity = restTemplate.exchange(
-                "http://exchange-generator-service/course",
+                "http://exchange-service/course",
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<>() {}

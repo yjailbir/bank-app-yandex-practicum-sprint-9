@@ -1,21 +1,3 @@
-resilience4j:
-  retry:
-    instances:
-      exchangeGenerator:
-        maxAttempts: 3
-        waitDuration: 2s
-        retryExceptions:
-          - java.io.IOException
-          - org.springframework.web.client.ResourceAccessException
-          - org.springframework.web.client.HttpServerErrorException
-  circuitbreaker:
-    instances:
-      exchangeGenerator:
-        registerHealthIndicator: true
-        slidingWindowSize: 5
-        failureRateThreshold: 50
-        waitDurationInOpenState: 5s
-
 jwt:
   validation:
     enabled: false

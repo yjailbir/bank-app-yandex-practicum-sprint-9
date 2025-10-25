@@ -8,10 +8,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 import ru.yjailbir.commonslib.dto.request.LoginRequestDto;
 import ru.yjailbir.commonslib.dto.request.RegisterRequestDto;
 import ru.yjailbir.commonslib.dto.response.MessageResponseDto;
+import ru.yjailbir.uiservice.service.AuthService;
 
 import java.util.Collections;
 import java.util.List;
@@ -19,15 +19,11 @@ import java.util.List;
 @Controller
 @RequestMapping("/auth")
 public class AuthController {
-    private final RestTemplate restTemplate;
+    private final AuthService authService;
 
     @Autowired
-    public AuthController(RestTemplate restTemplate) {
-        restTemplate.setErrorHandler(response -> {
-            // Чтобы не летели исключения на 4хх и 5хх коды. Обрабатываем коды вручную
-            return false;
-        });
-        this.restTemplate = restTemplate;
+    public AuthController(AuthService authService) {
+        this.authService = authService;
     }
 
     @GetMapping("/register")
@@ -40,9 +36,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public String registerUser(@ModelAttribute RegisterRequestDto dto, Model model) {
-        ResponseEntity<MessageResponseDto> responseEntity = restTemplate.postForEntity(
-                "http://accounts-service/register", dto, MessageResponseDto.class
-        );
+        ResponseEntity<MessageResponseDto> responseEntity = authService.register(dto);
         MessageResponseDto messageResponseDto = responseEntity.getBody();
 
         if (messageResponseDto != null) {
@@ -68,9 +62,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public String loginUser(@ModelAttribute LoginRequestDto dto, HttpSession session, Model model) {
-        ResponseEntity<MessageResponseDto> responseEntity = restTemplate.postForEntity(
-                "http://accounts-service/login", dto, MessageResponseDto.class
-        );
+        ResponseEntity<MessageResponseDto> responseEntity = authService.login(dto);
         MessageResponseDto messageResponseDto = responseEntity.getBody();
 
         if (messageResponseDto != null) {

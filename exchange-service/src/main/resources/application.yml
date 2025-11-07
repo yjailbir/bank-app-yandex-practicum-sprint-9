@@ -1,9 +1,16 @@
 spring:
   application:
     name: exchange-service
-  cloud:
-    consul:
-      host: consul
-      port: 8500
-  config:
-    import: configserver:http://config-service:8080
+
+jwt:
+  validation:
+    enabled: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info
+  endpoint:
+    health:
+      show-details: always

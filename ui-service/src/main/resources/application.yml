@@ -1,9 +1,66 @@
 spring:
   application:
     name: ui-service
-  cloud:
-    consul:
-      host: consul
-      port: 8500
-  config:
-    import: configserver:http://config-service:8080
+
+server:
+  ssl:
+    enabled: true
+    key-store: classpath:cert.p12
+    key-store-password: secret
+    key-store-type: PKCS12
+    key-alias: ui-service
+
+resilience4j:
+  retry:
+    instances:
+      accountsService:
+        maxAttempts: 3
+        waitDuration: 2s
+        retryExceptions:
+          - java.io.IOException
+          - org.springframework.web.client.ResourceAccessException
+          - org.springframework.web.client.HttpServerErrorException
+      cashService:
+        maxAttempts: 3
+        waitDuration: 2s
+        retryExceptions:
+          - java.io.IOException
+          - org.springframework.web.client.ResourceAccessException
+          - org.springframework.web.client.HttpServerErrorException
+      transferService:
+        maxAttempts: 3
+        waitDuration: 2s
+        retryExceptions:
+          - java.io.IOException
+          - org.springframework.web.client.ResourceAccessException
+          - org.springframework.web.client.HttpServerErrorException
+  circuitbreaker:
+    instances:
+      accountsService:
+        registerHealthIndicator: true
+        slidingWindowSize: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 5s
+      cashService:
+        registerHealthIndicator: true
+        slidingWindowSize: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 5s
+      transferService:
+        registerHealthIndicator: true
+        slidingWindowSize: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 5s
+
+jwt:
+  validation:
+    enabled: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info
+  endpoint:
+    health:
+      show-details: always

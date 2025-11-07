@@ -1,10 +1,46 @@
 spring:
   application:
     name: cash-service
-  cloud:
-    consul:
-      host: consul
-      port: 8500
-  config:
-    import: configserver:http://config-service:8080
 
+resilience4j:
+  retry:
+    instances:
+      accountsService:
+        maxAttempts: 3
+        waitDuration: 2s
+        retryExceptions:
+          - java.io.IOException
+          - org.springframework.web.client.ResourceAccessException
+          - org.springframework.web.client.HttpServerErrorException
+      blockerService:
+        maxAttempts: 3
+        waitDuration: 2s
+        retryExceptions:
+          - java.io.IOException
+          - org.springframework.web.client.ResourceAccessException
+          - org.springframework.web.client.HttpServerErrorException
+  circuitbreaker:
+    instances:
+      accountsService:
+        registerHealthIndicator: true
+        slidingWindowSize: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 5s
+      blockerService:
+        registerHealthIndicator: true
+        slidingWindowSize: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 5s
+
+jwt:
+  validation:
+    enabled: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info
+  endpoint:
+    health:
+      show-details: always

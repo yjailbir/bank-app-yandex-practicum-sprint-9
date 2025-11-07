@@ -2,14 +2,6 @@ spring:
   application:
     name: ui-service
 
-server:
-  ssl:
-    enabled: true
-    key-store: classpath:cert.p12
-    key-store-password: secret
-    key-store-type: PKCS12
-    key-alias: ui-service
-
 resilience4j:
   retry:
     instances:

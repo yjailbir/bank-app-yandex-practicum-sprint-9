@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: blocker-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: blocker-service
+  template:
+    metadata:
+      labels:
+        app: blocker-service
+    spec:
+      containers:
+        - name: blocker-service
+          image: blocker-service:1.0
+          ports:
+            - containerPort: 8080
+          imagePullPolicy: IfNotPresent
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: blocker-service
+spec:
+  type: ClusterIP
+  selector:
+    app: blocker-service
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080

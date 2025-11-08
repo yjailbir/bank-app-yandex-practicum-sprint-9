@@ -1,35 +1,34 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: accounts-service
+  name: transfer-service
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: accounts-service
+      app: transfer-service
   template:
     metadata:
       labels:
-        app: accounts-service
+        app: transfer-service
     spec:
       containers:
-        - name: accounts-service
-          image: accounts-service:1.0
+        - name: transfer-service
+          image: transfer-service:1.0
           ports:
             - containerPort: 8080
           imagePullPolicy: IfNotPresent
-#minikube -p minikube docker-env --shell powershell | Invoke-Expression
 
 ---
 
 apiVersion: v1
 kind: Service
 metadata:
-  name: accounts-service
+  name: transfer-service
 spec:
   type: ClusterIP
   selector:
-    app: accounts-service
+    app: transfer-service
   ports:
     - protocol: TCP
       port: 8080

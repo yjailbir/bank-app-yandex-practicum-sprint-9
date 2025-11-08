@@ -27,7 +27,7 @@ public class ExchangeServiceClient {
     @CircuitBreaker(name = "exchangeService", fallbackMethod = "fallbackExchange")
     public ResponseEntity<ExchangeResponseDto> doExchange(TransferRequestDtoWithToken dto) {
         return  restTemplate.postForEntity(
-                "http://exchange-service/exchange",
+                "http://exchange-service:8080/exchange",
                 new ExchangeRequestDto(dto.fromCurrency(), dto.toCurrency(), dto.value()),
                 ExchangeResponseDto.class
         );

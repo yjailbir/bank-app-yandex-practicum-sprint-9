@@ -25,7 +25,7 @@ public class AccountsServiceClient {
     @Retry(name = "accountsService")
     @CircuitBreaker(name = "accountsService", fallbackMethod = "fallbackCashOperation")
     public ResponseEntity<MessageResponseDto> doCashOperation(CashRequestDtoWithToken dto){
-        String url = "http://accounts-service/";
+        String url = "http://accounts-service:8080/";
         return restTemplate.postForEntity(
                 url + "cash",
                 dto,

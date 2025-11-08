@@ -18,7 +18,7 @@ import java.util.List;
 public class AccountsServiceClient {
     private final RestTemplate restTemplate;
     private final String errorMessage = "Сервис учётных записей недоступен";
-    private final String url = "http://accounts-service/";
+    private final String url = "http://accounts-service:8080/";
 
     @Autowired
     public AccountsServiceClient(RestTemplate restTemplate) {
@@ -104,6 +104,7 @@ public class AccountsServiceClient {
     @Retry(name = "accountsService")
     @CircuitBreaker(name = "accountsService", fallbackMethod = "fallbackEditUser")
     public ResponseEntity<MessageResponseDto> editUser(String token, UserEditRequestDto dto) {
+        System.out.println("Отправляю на адрес: " + this.url + "edit");
         return restTemplate.postForEntity(
                 this.url + "edit",
                 new UserEditRequestDtoWithToken(dto.name(), dto.surname(), dto.activeAccounts(), token),

@@ -23,13 +23,13 @@ public class AuthService {
 
     public ResponseEntity<MessageResponseDto> register(RegisterRequestDto dto) {
         return restTemplate.postForEntity(
-                "http://accounts-service/register", dto, MessageResponseDto.class
+                "http://accounts-service:8080/register", dto, MessageResponseDto.class
         );
     }
 
     public ResponseEntity<MessageResponseDto> login(LoginRequestDto dto) {
         return restTemplate.postForEntity(
-                "http://accounts-service/login", dto, MessageResponseDto.class
+                "http://accounts-service:8080/login", dto, MessageResponseDto.class
         );
     }
 }

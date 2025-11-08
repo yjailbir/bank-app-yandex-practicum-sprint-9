@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: exchange-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: exchange-service
+  template:
+    metadata:
+      labels:
+        app: exchange-service
+    spec:
+      containers:
+        - name: exchange-service
+          image: exchange-service:1.0
+          ports:
+            - containerPort: 8080
+          imagePullPolicy: IfNotPresent
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: exchange-service
+spec:
+  type: ClusterIP
+  selector:
+    app: exchange-service
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080

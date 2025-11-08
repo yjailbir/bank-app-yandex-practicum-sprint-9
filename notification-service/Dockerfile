@@ -1,5 +1,5 @@
 FROM bellsoft/liberica-openjdk-alpine:21
 
-COPY notification-service/target/*.jar /notification-service.jar
+COPY target/*.jar /notification-service.jar
 
-ENTRYPOINT "java", "-jar", "/notification-service.jar"]
+ENTRYPOINT ["java", "-jar", "/notification-service.jar"]

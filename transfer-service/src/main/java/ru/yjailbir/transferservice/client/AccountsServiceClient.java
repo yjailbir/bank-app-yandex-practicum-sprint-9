@@ -26,7 +26,7 @@ public class AccountsServiceClient {
     @CircuitBreaker(name = "accountsService", fallbackMethod = "fallbackTransfer")
     public ResponseEntity<MessageResponseDto> doTransfer(ExchangedTransferDtoWithToken exchangedTransferDto) {
         return restTemplate.postForEntity(
-                "http://accounts-service/transfer",
+                "http://accounts-service:8080/transfer",
                 exchangedTransferDto,
                 MessageResponseDto.class
         );

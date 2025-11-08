@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cash-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cash-service
+  template:
+    metadata:
+      labels:
+        app: cash-service
+    spec:
+      containers:
+        - name: cash-service
+          image: cash-service:1.0
+          ports:
+            - containerPort: 8080
+          imagePullPolicy: IfNotPresent
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: cash-service
+spec:
+  type: ClusterIP
+  selector:
+    app: cash-service
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080

@@ -40,7 +40,7 @@ public class TransferServiceClient {
                         );
 
         return restTemplate.postForEntity(
-                "http://transfer-service/transfer", transferRequestEntity, MessageResponseDto.class
+                "http://transfer-service:8080/transfer", transferRequestEntity, MessageResponseDto.class
         );
     }
 

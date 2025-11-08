@@ -92,6 +92,7 @@ public class AccountsController {
             return ResponseEntity.badRequest().body(new MessageResponseDto("error", tokenValidationResult));
         } else {
             try {
+                System.out.println("Получил запрос на эдит юзера с телом " + dto);
                 userService.updateUser(dto);
                 notificationClient.sendNotification(
                         "Пользователь " + userService.getLoginFromToken(dto.token()) + " поменял данные пользователя",

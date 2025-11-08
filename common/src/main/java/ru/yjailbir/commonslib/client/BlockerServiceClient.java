@@ -16,7 +16,7 @@ import ru.yjailbir.commonslib.util.AuthorizedHttpEntityFactory;
 public class BlockerServiceClient {
     private final RestTemplate restTemplate;
     private final String errorMessage = "Сервис проверки подозрительной активности недоступен";
-    private final String url = "http://blocker-service/";
+    private final String url = "http://blocker-service:8080/";
 
     @Autowired
     public BlockerServiceClient(RestTemplate restTemplate) {

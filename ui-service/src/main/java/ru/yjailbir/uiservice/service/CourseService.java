@@ -21,7 +21,7 @@ public class CourseService {
 
     public ResponseEntity<List<CurrencyRateDto>> getRates() {
         return restTemplate.exchange(
-                "http://exchange-service/course",
+                "http://exchange-service:8080/course",
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<>() {}

@@ -47,6 +47,6 @@ public class Generator {
                 )
         );
 
-        restTemplate.postForLocation("http://exchange-service/update-course", list);
+        restTemplate.postForLocation("http://exchange-service:8080/update-course", list);
     }
 }

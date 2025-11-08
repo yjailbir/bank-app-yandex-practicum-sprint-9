@@ -35,7 +35,7 @@ public class CashServiceClient {
                         );
 
         return restTemplate.postForEntity(
-                "http://cash-service/operate", cashRequestEntity, MessageResponseDto.class
+                "http://cash-service:8080/operate", cashRequestEntity, MessageResponseDto.class
         );
     }
 

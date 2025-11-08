@@ -1,0 +1,1 @@
+kubectl port-forward svc/ui-service 8080:8080

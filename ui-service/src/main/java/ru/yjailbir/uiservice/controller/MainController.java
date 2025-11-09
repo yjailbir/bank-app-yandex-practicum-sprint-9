@@ -132,7 +132,6 @@ public class MainController {
     ) {
         String token = session.getAttribute("JWT_TOKEN").toString();
         if (token != null) {
-            System.out.println("Отправляю запрос на обновление юзера");
             ResponseEntity<MessageResponseDto> responseEntity = accountsServiceClient.editUser(token, dto);
             MessageResponseDto messageResponseDto = responseEntity.getBody();
 

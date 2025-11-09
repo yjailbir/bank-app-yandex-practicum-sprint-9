@@ -12,8 +12,28 @@ foreach ($proc in $portForwardProcesses) {
 kubectl delete all --all
 Start-Sleep -Seconds 5
 
-docker ps -q | ForEach-Object { docker stop $_ }
-docker ps -aq | ForEach-Object { docker rm $_ }
-docker images -q | ForEach-Object { docker rmi -f $_ }
+$myImages = @(
+    "accounts-service:1.0",
+    "blocker-service:1.0",
+    "cash-service:1.0",
+    "exchange-generator-service:1.0",
+    "exchange-service:1.0",
+    "notification-service:1.0",
+    "transfer-service:1.0",
+    "ui-service:1.0"
+)
+
+foreach ($img in $myImages) {
+    $containers = docker ps -aq --filter "ancestor=$img"
+    if ($containers) {
+        docker stop $containers
+        docker rm $containers
+    }
+}
+
+foreach ($img in $myImages) {
+    docker rmi -f $img
+}
+
 docker volume prune -f
-docker system prune -f
+docker system prune -f --filter "label!=io.kubernetes.container.name"

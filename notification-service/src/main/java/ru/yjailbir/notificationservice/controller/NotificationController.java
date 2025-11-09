@@ -12,7 +12,8 @@ public class NotificationController {
    private final Logger logger = Logger.getLogger(NotificationController.class.getName());
 
     @PostMapping("/notify")
-    public void doNotification(@RequestBody NotificationDto dto) {
+    public String doNotification(@RequestBody NotificationDto dto) {
         logger.info("Received notification: " + dto.text());
+        return "notification sent";
     }
 }

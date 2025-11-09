@@ -22,7 +22,7 @@ public class NotificationClient {
                 new AuthorizedHttpEntityFactory<NotificationDto>().
                         createHttpEntityWithToken(notificationDto, token);
         restTemplate.postForObject(
-                "http://notification-service/notify", notificationRequestEntity, Void.class
+                "http://notification-service:8080/notify", notificationRequestEntity, String.class
         );
     }
 }

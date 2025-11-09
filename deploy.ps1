@@ -17,7 +17,7 @@ kubectl apply -f exchange-service.yml
 kubectl apply -f notification-service.yml
 kubectl apply -f transfer-service.yml
 kubectl apply -f ui-service.yml
-kubectl wait --for=condition=ready pod -l app=ui-service --timeout=120s
+Start-Sleep -Seconds 60
 kubectl port-forward svc/ui-service 8080:8080
 
 

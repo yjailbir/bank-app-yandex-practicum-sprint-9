@@ -104,7 +104,6 @@ public class AccountsServiceClient {
     @Retry(name = "accountsService")
     @CircuitBreaker(name = "accountsService", fallbackMethod = "fallbackEditUser")
     public ResponseEntity<MessageResponseDto> editUser(String token, UserEditRequestDto dto) {
-        System.out.println("Отправляю на адрес: " + this.url + "edit");
         return restTemplate.postForEntity(
                 this.url + "edit",
                 new UserEditRequestDtoWithToken(dto.name(), dto.surname(), dto.activeAccounts(), token),

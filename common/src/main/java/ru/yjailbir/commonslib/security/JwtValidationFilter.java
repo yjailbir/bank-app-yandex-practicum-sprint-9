@@ -35,7 +35,7 @@ public class JwtValidationFilter extends OncePerRequestFilter {
         String token = authHeader.substring(7);
 
         try {
-            String authServiceUrl = "http://accounts-service/validate";
+            String authServiceUrl = "http://accounts-service:8080/validate";
             ResponseEntity<String> validationResponse = restTemplate.postForEntity(
                     authServiceUrl,
                     Map.of("token", token),

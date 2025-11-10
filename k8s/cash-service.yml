@@ -18,6 +18,14 @@ spec:
           ports:
             - containerPort: 8080
           imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: config-volume
+              mountPath: /config/application.yml
+              subPath: application.yml
+      volumes:
+        - name: config-volume
+          configMap:
+            name: cash-config
 
 ---
 
@@ -33,3 +41,58 @@ spec:
     - protocol: TCP
       port: 8080
       targetPort: 8080
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cash-config
+data:
+  application.yml: |-
+    spring:
+      application:
+        name: cash-service
+
+    resilience4j:
+      retry:
+        instances:
+          accountsService:
+            maxAttempts: 3
+            waitDuration: 2s
+            retryExceptions:
+              - java.io.IOException
+              - org.springframework.web.client.ResourceAccessException
+              - org.springframework.web.client.HttpServerErrorException
+          blockerService:
+            maxAttempts: 3
+            waitDuration: 2s
+            retryExceptions:
+              - java.io.IOException
+              - org.springframework.web.client.ResourceAccessException
+              - org.springframework.web.client.HttpServerErrorException
+      circuitbreaker:
+        instances:
+          accountsService:
+            registerHealthIndicator: true
+            slidingWindowSize: 5
+            failureRateThreshold: 50
+            waitDurationInOpenState: 5s
+          blockerService:
+            registerHealthIndicator: true
+            slidingWindowSize: 5
+            failureRateThreshold: 50
+            waitDurationInOpenState: 5s
+
+    jwt:
+      validation:
+        enabled: true
+
+    management:
+      endpoints:
+        web:
+          exposure:
+            include: health, info
+      endpoint:
+        health:
+          show-details: always

@@ -19,13 +19,3 @@ kubectl apply -f transfer-service.yml
 kubectl apply -f ui-service.yml
 Start-Sleep -Seconds 60
 kubectl port-forward svc/ui-service 8080:8080
-
-
-
-
-<#
-org.springframework.web.client.UnknownContentTypeException: Could not extract response: no suitable HttpMessageConverter found for response type [class ru.yjailbir.commonslib.dto.response.MessageResponseDto] and content type [application/octet-stream]
-at org.springframework.web.client.HttpMessageConverterExtractor.extractData(HttpMessageConverterExtractor.java:133) ~[spring-web-6.2.10.jar!/:6.2.10]
-at org.springframework.web.client.RestTemplate$ResponseEntityResponseExtractor.extractData(RestTemplate.java:1183) ~[spring-web-6.2.10.jar!/:6.2.10]
-#>
-

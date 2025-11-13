@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "blocker_service.fullname" . }}-deployment
+  labels:
+    app: {{ include "blocker_service.name" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "blocker_service.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "blocker_service.name" . }}
+    spec:
+      containers:
+        - name: {{ include "blocker_service.name" . }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.service.port }}
+          volumeMounts:
+            - name: config-volume
+              mountPath: /config/application.yml
+              subPath: application.yml
+      volumes:
+        - name: config-volume
+          configMap:
+            name: {{ include "blocker_service.fullname" . }}-config

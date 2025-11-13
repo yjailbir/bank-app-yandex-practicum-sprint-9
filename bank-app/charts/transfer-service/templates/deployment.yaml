@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "transfer_service.fullname" . }}-deployment
+  labels:
+    app: {{ include "transfer_service.fullname" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "transfer_service.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "transfer_service.name" . }}
+    spec:
+      containers:
+        - name: {{ include "transfer_service.name" . }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.service.port }}
+          volumeMounts:
+            - name: config-volume
+              mountPath: /config/application.yml
+              subPath: application.yml
+      volumes:
+        - name: config-volume
+          configMap:
+            name: {{ include "transfer_service.fullname" . }}-config

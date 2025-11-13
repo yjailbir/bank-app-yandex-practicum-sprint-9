@@ -1,0 +1,28 @@
+replicaCount: 1
+image:
+  repository: exchange-service
+  tag: "1.0"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8080
+
+
+config:
+  applicationYml: |
+    spring:
+      application:
+        name: exchange-service
+    jwt:
+      validation:
+        enabled: false
+    management:
+      endpoints:
+        web:
+          exposure:
+            include: health, info
+      endpoint:
+        health:
+          show-details: always
+

@@ -1,0 +1,30 @@
+replicaCount: 1
+image:
+  repository: accounts-service
+  tag: "1.0"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8080
+
+
+config:
+  applicationYml: |
+    spring:
+      application:
+        name: accounts-service
+    jwt:
+      secret: 17898c04a08f8dc2cb70e01de660096ffe1b0d0aec8ac37827aff7ea56810a31ed1...
+      token-expiration: 43200000
+      validation:
+        enabled: false
+    management:
+      endpoints:
+        web:
+          exposure:
+            include: health, info
+      endpoint:
+        health:
+          show-details: always
+

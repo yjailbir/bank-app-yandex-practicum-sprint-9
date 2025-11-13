@@ -1,0 +1,9 @@
+# Root values for umbrella chart. To disable a subchart, set <service>.enabled = false
+accounts_service: { enabled: true }
+blocker_service: { enabled: true }
+cash_service: { enabled: true }
+exchange_generator_service: { enabled: true }
+exchange_service: { enabled: true }
+notification_service: { enabled: true }
+transfer_service: { enabled: true }
+ui_service: { enabled: true }

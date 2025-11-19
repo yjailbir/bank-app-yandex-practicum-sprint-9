@@ -29,3 +29,6 @@ dependencies:
 - name: ui-service
   version: 1.0.0
   repository: file://charts/ui-service
+- name: kafka
+  version: 1.0.0
+  repository: file://charts/kafka

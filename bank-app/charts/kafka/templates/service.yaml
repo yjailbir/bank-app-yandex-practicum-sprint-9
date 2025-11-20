@@ -7,5 +7,7 @@ spec:
   selector:
     app: kafka
   ports:
-  - name: kafka
-    port: {{ .Values.service.port }}
+    - name: kafka
+      port: {{ .Values.service.port }}
+    - name: controller
+      port: 9093

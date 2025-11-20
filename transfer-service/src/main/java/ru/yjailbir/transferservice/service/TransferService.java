@@ -64,7 +64,7 @@ public class TransferService {
                             "Осуществлена конвертация " + exchangedTransferDto.fromCurrency() + " " +
                                     exchangedTransferDto.fromValue() + " в " + exchangedTransferDto.toCurrency()
                                     + " " + exchangedTransferDto.toValue() + " пользователем с токеном " +
-                                    dto.token(), dto.token()
+                                    dto.token()
                     );
                 }
             } else {
@@ -88,7 +88,7 @@ public class TransferService {
 
             notificationClient.sendNotification(
                     "В сервисе переводов совершён перевод на сумму " + dto.value() + " "
-                            + dto.fromCurrency() + " пользователем с токеном " + dto.token(), dto.token()
+                            + dto.fromCurrency() + " пользователем с токеном " + dto.token()
             );
 
             return ResponseEntity.ok(messageResponseDto);

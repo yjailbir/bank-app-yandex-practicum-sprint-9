@@ -11,7 +11,7 @@ service:
 persistence:
   enabled: true
   size: 2Gi
-  storageClass: ""
+  storageClass: "standard"
 
 kafka:
   nodeId: 0

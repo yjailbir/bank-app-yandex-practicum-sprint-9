@@ -7,3 +7,4 @@ exchange_service: { enabled: true }
 notification_service: { enabled: true }
 transfer_service: { enabled: true }
 ui_service: { enabled: true }
+kafka: { enabled: true }

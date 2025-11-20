@@ -5,7 +5,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 import ru.yjailbir.commonslib.client.BlockerServiceClient;
-import ru.yjailbir.commonslib.client.NotificationClient;
 
 @Configuration
 public class CommonConfiguration {
@@ -13,11 +12,6 @@ public class CommonConfiguration {
     @LoadBalanced
     public RestTemplate restTemplate() {
         return new RestTemplate();
-    }
-
-    @Bean
-    public NotificationClient notificator(){
-        return new NotificationClient(restTemplate());
     }
 
     @Bean

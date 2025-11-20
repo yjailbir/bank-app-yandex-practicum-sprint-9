@@ -1,7 +1,7 @@
 apiVersion: v2
 name: kafka
 version: 1.0.0
-description: Kafka 4.0.0 with persistence (default namespace)
-appVersion: "4.0.0"
+description: Kafka with persistence (default namespace)
+appVersion: "1.0"
 
 dependencies: []

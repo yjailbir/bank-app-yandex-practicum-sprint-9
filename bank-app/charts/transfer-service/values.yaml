@@ -14,6 +14,11 @@ config:
     spring:
       application:
         name: transfer-service
+      kafka:
+        bootstrap-servers: kafka-0.kafka.default.svc.cluster.local:9092
+        producer:
+          key-serializer: org.apache.kafka.common.serialization.StringSerializer
+          value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
     resilience4j:
       retry:
         instances:

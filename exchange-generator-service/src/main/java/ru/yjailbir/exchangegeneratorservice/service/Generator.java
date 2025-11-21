@@ -1,9 +1,9 @@
 package ru.yjailbir.exchangegeneratorservice.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 import ru.yjailbir.commonslib.dto.CurrencyRateDto;
 import ru.yjailbir.exchangegeneratorservice.dto.ExchangeCourse;
 
@@ -13,16 +13,12 @@ import java.util.Random;
 
 @Component
 public class Generator {
-    private final RestTemplate restTemplate;
+    private final KafkaTemplate<String, List<CurrencyRateDto>> kafkaTemplate;
     private final Random random;
 
     @Autowired
-    public Generator( RestTemplate restTemplate) {
-        restTemplate.setErrorHandler(response -> {
-            // Чтобы не летели исключения на 4хх и 5хх коды. Обрабатываем коды вручную
-            return false;
-        });
-        this.restTemplate = restTemplate;
+    public Generator(KafkaTemplate<String, List<CurrencyRateDto>> kafkaTemplate) {
+        this.kafkaTemplate = kafkaTemplate;
         this.random = new Random();
     }
 
@@ -47,6 +43,6 @@ public class Generator {
                 )
         );
 
-        restTemplate.postForLocation("http://exchange-service:8080/update-course", list);
+        kafkaTemplate.send("exchange-currency-topic", "rates", list);
     }
 }

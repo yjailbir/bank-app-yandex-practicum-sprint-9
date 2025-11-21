@@ -1,10 +1,5 @@
 replicaCount: 1
 
-image:
-  repository: apache/kafka
-  tag: 4.0.0
-  pullPolicy: IfNotPresent
-
 service:
   port: 9092
 

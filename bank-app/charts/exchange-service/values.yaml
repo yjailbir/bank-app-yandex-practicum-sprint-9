@@ -14,6 +14,15 @@ config:
     spring:
       application:
         name: exchange-service
+      kafka:
+        bootstrap-servers: kafka-0.kafka.default.svc.cluster.local:9092
+        consumer:
+          group-id: exchange-service-group
+          key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+          value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+          properties:
+            spring.json.trusted.packages: "*"
+          auto-offset-reset: latest 
     jwt:
       validation:
         enabled: false

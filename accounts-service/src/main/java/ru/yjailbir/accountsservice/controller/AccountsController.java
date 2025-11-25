@@ -61,8 +61,7 @@ public class AccountsController {
             try {
                 userService.updateUserPassword(dto);
                 notificationClient.sendNotification(
-                        "Пользователь " + userService.getLoginFromToken(dto.token()) + " поменял пароль",
-                        dto.token()
+                        "Пользователь " + userService.getLoginFromToken(dto.token()) + " поменял пароль"
                 );
                 return ResponseEntity.ok(new MessageResponseDto("ok", ""));
             } catch (IllegalArgumentException e) {
@@ -94,8 +93,7 @@ public class AccountsController {
             try {
                 userService.updateUser(dto);
                 notificationClient.sendNotification(
-                        "Пользователь " + userService.getLoginFromToken(dto.token()) + " поменял данные пользователя",
-                        dto.token()
+                        "Пользователь " + userService.getLoginFromToken(dto.token()) + " поменял данные пользователя"
                 );
                 return ResponseEntity.ok(new MessageResponseDto("ok", ""));
             } catch (IllegalArgumentException | IllegalStateException e) {

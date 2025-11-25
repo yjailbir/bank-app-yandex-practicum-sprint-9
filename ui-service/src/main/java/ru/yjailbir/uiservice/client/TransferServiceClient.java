@@ -46,7 +46,7 @@ public class TransferServiceClient {
 
     public ResponseEntity<MessageResponseDto> fallbackTransfer(String token, TransferRequestDto dto, Throwable ex) {
         notificationClient.sendNotification(
-                "Вызван fallback метод fallbackTransfer: " + ex.getMessage(), token
+                "Вызван fallback метод fallbackTransfer: " + ex.getMessage()
         );
         String errorMessage = "Сервис переводов недоступен";
         MessageResponseDto messageResponseDto = new MessageResponseDto("error", errorMessage);

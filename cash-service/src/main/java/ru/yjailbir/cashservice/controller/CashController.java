@@ -47,7 +47,7 @@ public class CashController {
 
             notificationClient.sendNotification(
                     "В сервисе наличных произведена операция " + dto.action() + " на сумму " + dto.value() +
-                            " " + dto.currency() + " пользователем с токеном " + dto.token(), dto.token()
+                            " " + dto.currency() + " пользователем с токеном " + dto.token()
             );
 
             return ResponseEntity.ok(messageResponseDto);

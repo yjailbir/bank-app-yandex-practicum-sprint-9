@@ -9,7 +9,7 @@ foreach ($proc in $portForwardProcesses) {
     Stop-Process -Id $proc.ProcessId -Force
 }
 
-kubectl delete all --all
+helm uninstall bank-app
 Start-Sleep -Seconds 5
 
 $myImages = @(

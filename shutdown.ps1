@@ -10,6 +10,7 @@ foreach ($proc in $portForwardProcesses) {
 }
 
 helm uninstall bank-app
+kubectl delete pvc -l app=kafka
 Start-Sleep -Seconds 5
 
 $myImages = @(

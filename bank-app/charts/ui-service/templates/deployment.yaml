@@ -22,8 +22,14 @@ spec:
             - containerPort: {{ .Values.service.port }}
           volumeMounts:
             - name: config-volume
-              mountPath: /config
+              mountPath: /app/config
+          env:
+            - name: SPRING_CONFIG_IMPORT
+              value: "file:/app/config/application.yml"
       volumes:
         - name: config-volume
           configMap:
             name: {{ include "ui_service.fullname" . }}-config
+            items:
+              - key: application.yml
+                path: application.yml

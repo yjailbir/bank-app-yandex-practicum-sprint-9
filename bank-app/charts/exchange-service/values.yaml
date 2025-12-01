@@ -7,9 +7,3 @@ image:
 service:
   type: ClusterIP
   port: 8080
-
-
-config:
-  applicationYml: |
-    
-

@@ -11,3 +11,4 @@ docker build -t ui-service:1.0 .\ui-service
 helm install bank-app ./bank-app
 Start-Sleep -Seconds 60
 kubectl port-forward svc/ui-service 8080:8080
+<#kubectl port-forward service/zipkin 9411:9411#>

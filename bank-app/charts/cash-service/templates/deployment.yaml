@@ -22,8 +22,7 @@ spec:
             - containerPort: {{ .Values.service.port }}
           volumeMounts:
             - name: config-volume
-              mountPath: /config/application.yml
-              subPath: application.yml
+              mountPath: /config
       volumes:
         - name: config-volume
           configMap:

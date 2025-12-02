@@ -10,8 +10,9 @@ foreach ($proc in $portForwardProcesses) {
 }
 
 helm uninstall bank-app
-helm uninstall prometheus-stack
-helm uninstall grafana
+helm uninstall prometheus-stack -n monitoring
+helm uninstall grafana -n monitoring
+kubectl delete namespace monitoring
 kubectl delete pvc -l app=kafka
 Start-Sleep -Seconds 5
 

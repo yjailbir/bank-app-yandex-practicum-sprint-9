@@ -1,0 +1,19 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: too-many-suspicious-operations
+  namespace: monitoring
+  labels:
+    release: prometheus-stack
+spec:
+  groups:
+    - name: prometheus.rules
+      rules:
+        - alert: HighSuspiciousOperationsRate
+          expr: sum(rate(operations_blocked_total[1m])) > 5
+          for: 1m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Увеличилось количество подозрительных операций"
+            description: "Количество подозрительных операций превысило 5 в течение последней минуты"

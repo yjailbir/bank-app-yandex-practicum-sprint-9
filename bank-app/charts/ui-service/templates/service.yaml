@@ -2,6 +2,8 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ include "ui_service.fullname" . }}
+  labels:
+    app: {{ include "ui_service.name" . }}
 spec:
   type: {{ .Values.service.type }}
   selector:

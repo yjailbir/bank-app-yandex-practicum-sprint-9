@@ -2,6 +2,8 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ include "cash_service.fullname" . }}
+  labels:
+    app: {{ include "cash_service.name" . }}
 spec:
   type: {{ .Values.service.type }}
   selector:

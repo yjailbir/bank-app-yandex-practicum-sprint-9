@@ -8,7 +8,11 @@ docker build -t exchange-service:1.0 .\exchange-service
 docker build -t notification-service:1.0 .\notification-service
 docker build -t transfer-service:1.0 .\transfer-service
 docker build -t ui-service:1.0 .\ui-service
+kubectl create namespace monitoring
+helm install prometheus-stack prometheus-community/kube-prometheus-stack -n monitoring
+helm install grafana grafana/grafana -n monitoring
 helm install bank-app ./bank-app
 Start-Sleep -Seconds 60
 kubectl port-forward svc/ui-service 8080:8080
 <#kubectl port-forward service/zipkin 9411:9411#>
+<#kubectl port-forward svc/prometheus-server 9090:9090 #>

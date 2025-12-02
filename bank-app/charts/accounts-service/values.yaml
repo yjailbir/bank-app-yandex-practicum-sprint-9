@@ -7,3 +7,8 @@ image:
 service:
   type: ClusterIP
   port: 8080
+
+probes:
+  enabled: true
+  livenessPath: /actuator/health/liveness
+  readinessPath: /actuator/health/readiness

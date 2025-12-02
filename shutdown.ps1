@@ -13,7 +13,7 @@ helm uninstall bank-app
 kubectl delete pvc -l app=kafka
 Start-Sleep -Seconds 5
 
-$myImages = @(
+<#$myImages = @(
     "accounts-service:1.0",
     "blocker-service:1.0",
     "cash-service:1.0",
@@ -37,4 +37,4 @@ foreach ($img in $myImages) {
 }
 
 docker volume prune -f
-docker system prune -f --filter "label!=io.kubernetes.container.name"
+docker system prune -f --filter "label!=io.kubernetes.container.name"#>

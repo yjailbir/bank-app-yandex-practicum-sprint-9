@@ -38,6 +38,9 @@ pipeline {
         stage('deploy') {
             steps {
                 powershell '''
+                kubectl create namespace monitoring
+                helm install prometheus-stack prometheus-community/kube-prometheus-stack -n monitoring
+                helm install grafana grafana/grafana -n monitoring
                 helm install bank-app ./bank-app
                 '''
             }

@@ -12,7 +12,6 @@ kubectl create namespace monitoring
 helm install prometheus-stack prometheus-community/kube-prometheus-stack -n monitoring
 helm install grafana grafana/grafana -n monitoring
 helm install bank-app ./bank-app
-Start-Sleep -Seconds 60
-kubectl port-forward svc/ui-service 8080:8080
+<#kubectl port-forward svc/ui-service 8080:8080#>
 <#kubectl port-forward service/zipkin 9411:9411#>
-<#kubectl port-forward svc/prometheus-server 9090:9090 #>
+<#kubectl port-forward -n monitoring svc/prometheus-stack-grafana 3000:80#>

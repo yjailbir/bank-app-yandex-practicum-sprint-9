@@ -1,5 +1,8 @@
 package ru.yjailbir.accountsservice.controller;
 
+import io.micrometer.tracing.Tracer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -13,13 +16,17 @@ import ru.yjailbir.commonslib.dto.response.UserDataResponseDto;
 
 @RestController
 public class AccountsController {
+    private final Logger logger = LoggerFactory.getLogger(AccountsController.class);
+
     private final UserService userService;
     private final NotificationClient notificationClient;
+    private final Tracer tracer;
 
     @Autowired
-    public AccountsController(UserService userService, NotificationClient notificationClient) {
+    public AccountsController(UserService userService, NotificationClient notificationClient, Tracer tracer) {
         this.userService = userService;
         this.notificationClient = notificationClient;
+        this.tracer = tracer;
     }
 
     @PostMapping("/register")
@@ -28,6 +35,7 @@ public class AccountsController {
             userService.saveNewUser(dto);
             return ResponseEntity.ok(new MessageResponseDto("ok", "пользователь зарегистрирован"));
         } catch (IllegalArgumentException e) {
+            logError(e);
             return ResponseEntity.badRequest().body(new MessageResponseDto("error", e.getMessage()));
         }
     }
@@ -38,6 +46,7 @@ public class AccountsController {
             String token = userService.loginUser(dto);
             return ResponseEntity.ok(new MessageResponseDto("ok", token));
         } catch (IllegalArgumentException e) {
+            logError(e);
             return ResponseEntity.badRequest().body(new MessageResponseDto("error", e.getMessage()));
         }
     }
@@ -65,6 +74,7 @@ public class AccountsController {
                 );
                 return ResponseEntity.ok(new MessageResponseDto("ok", ""));
             } catch (IllegalArgumentException e) {
+                logError(e);
                 return ResponseEntity.badRequest().body(new MessageResponseDto("error", e.getMessage()));
             }
         }
@@ -79,6 +89,7 @@ public class AccountsController {
             try {
                 return ResponseEntity.ok(userService.getUserData(dto.token()));
             } catch (IllegalArgumentException e) {
+                logError(e);
                 return ResponseEntity.badRequest().body(new UserDataResponseDto("error", e.getMessage()));
             }
         }
@@ -97,6 +108,7 @@ public class AccountsController {
                 );
                 return ResponseEntity.ok(new MessageResponseDto("ok", ""));
             } catch (IllegalArgumentException | IllegalStateException e) {
+                logError(e);
                 return ResponseEntity.badRequest().body(new MessageResponseDto("error", e.getMessage()));
             }
         }
@@ -111,6 +123,7 @@ public class AccountsController {
             try {
                 return ResponseEntity.ok(userService.getUserActiveAccounts(dto.token()));
             } catch (IllegalArgumentException e) {
+                logError(e);
                 return ResponseEntity.badRequest().body(new UserAccountsResponseDto("error", e.getMessage()));
             }
         }
@@ -126,6 +139,7 @@ public class AccountsController {
                 userService.doCashOperation(dto);
                 return ResponseEntity.ok(new MessageResponseDto("ok", ""));
             } catch (IllegalArgumentException e) {
+                logError(e);
                 return ResponseEntity.badRequest().body(new MessageResponseDto("error", e.getMessage()));
             }
         }
@@ -151,8 +165,13 @@ public class AccountsController {
                 userService.doTransfer(dto);
                 return ResponseEntity.ok(new MessageResponseDto("ok", ""));
             } catch (IllegalArgumentException e) {
+                logError(e);
                 return ResponseEntity.badRequest().body(new MessageResponseDto("error", e.getMessage()));
             }
         }
+    }
+
+    private void logError(Exception e) {
+        logger.error("{} TraceId: {}", e.getMessage(), tracer.currentSpan().context().traceId());
     }
 }

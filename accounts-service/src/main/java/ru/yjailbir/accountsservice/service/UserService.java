@@ -1,6 +1,9 @@
 package ru.yjailbir.accountsservice.service;
 
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.tracing.Tracer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yjailbir.accountsservice.entity.AccountEntity;
 import ru.yjailbir.accountsservice.repository.AccountsRepository;
@@ -24,22 +27,27 @@ import java.util.List;
 
 @Service
 public class UserService {
+    private final Logger logger = LoggerFactory.getLogger(UserService.class);
+
     private final UserRepository userRepository;
     private final AccountsRepository accountsRepository;
     private final JwtUtil jwtUtil;
     private final MeterRegistry meterRegistry;
+    private final Tracer tracer;
 
     @Autowired
     public UserService(
             UserRepository userRepository,
             AccountsRepository accountsRepository,
             JwtUtil jwtUtil,
-            MeterRegistry registry
+            MeterRegistry registry,
+            Tracer tracer
     ) {
         this.userRepository = userRepository;
         this.accountsRepository = accountsRepository;
         this.jwtUtil = jwtUtil;
         this.meterRegistry = registry;
+        this.tracer = tracer;
     }
 
     public void saveNewUser(RegisterRequestDto dto) {
@@ -65,6 +73,7 @@ public class UserService {
                 new AccountEntity("ISP", "Имперский септим", user)
         ));
         userRepository.save(user);
+        logger.info("New user saved! Username: {}. TraceId: {}", user.getName(), tracer.currentSpan().context().traceId());
     }
 
     public String loginUser(LoginRequestDto dto) {
@@ -82,6 +91,7 @@ public class UserService {
         UserEntity user = getUserEntityByLogin(jwtUtil.getLoginFromJwtToken(dto.token()));
         user.setPassword(hashPassword(dto.password()));
         userRepository.save(user);
+        logger.info("User {} password updated! TraceId: {}", user.getName(), tracer.currentSpan().context().traceId());
     }
 
     public UserDataResponseDto getUserData(String token) {
@@ -113,6 +123,7 @@ public class UserService {
                 accountEntity -> accountEntity.setActive(activeAccounts.contains(accountEntity.getCurrency()))
         );
         userRepository.save(user);
+        logger.info("User {} updated! New data: {}. TraceId: {}", user.getName(), user, tracer.currentSpan().context().traceId());
     }
 
     public UserAccountsResponseDto getUserActiveAccounts(String token) {

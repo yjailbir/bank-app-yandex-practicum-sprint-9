@@ -1,4 +1,4 @@
-./mvnw clean package
+./mvnw clean package -DskipTests
 minikube -p minikube docker-env --shell powershell | Invoke-Expression
 docker build -t accounts-service:1.0 .\accounts-service
 docker build -t blocker-service:1.0 .\blocker-service

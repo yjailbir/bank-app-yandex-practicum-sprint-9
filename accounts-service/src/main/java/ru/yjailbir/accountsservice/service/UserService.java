@@ -1,5 +1,6 @@
 package ru.yjailbir.accountsservice.service;
 
+import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yjailbir.accountsservice.entity.AccountEntity;
 import ru.yjailbir.accountsservice.repository.AccountsRepository;
@@ -26,12 +27,19 @@ public class UserService {
     private final UserRepository userRepository;
     private final AccountsRepository accountsRepository;
     private final JwtUtil jwtUtil;
+    private final MeterRegistry meterRegistry;
 
     @Autowired
-    public UserService(UserRepository userRepository, AccountsRepository accountsRepository, JwtUtil jwtUtil) {
+    public UserService(
+            UserRepository userRepository,
+            AccountsRepository accountsRepository,
+            JwtUtil jwtUtil,
+            MeterRegistry registry
+    ) {
         this.userRepository = userRepository;
         this.accountsRepository = accountsRepository;
         this.jwtUtil = jwtUtil;
+        this.meterRegistry = registry;
     }
 
     public void saveNewUser(RegisterRequestDto dto) {
@@ -63,6 +71,7 @@ public class UserService {
         UserEntity user = getUserEntityByLogin(dto.login());
 
         if (!verifyPassword(dto.password(), user.getPassword())) {
+            meterRegistry.counter("auth_login_failed_total", "login", dto.login()).increment();
             throw new IllegalArgumentException("Неверный пароль!");
         }
 

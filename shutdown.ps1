@@ -15,6 +15,7 @@ helm uninstall grafana -n monitoring
 kubectl delete namespace monitoring
 helm uninstall logstash
 helm uninstall elasticsearch
+helm uninstall kibana
 kubectl delete pvc -l app=kafka
 Start-Sleep -Seconds 5
 

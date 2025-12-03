@@ -13,6 +13,8 @@ helm uninstall bank-app
 helm uninstall prometheus-stack -n monitoring
 helm uninstall grafana -n monitoring
 kubectl delete namespace monitoring
+helm uninstall logstash
+helm uninstall elasticsearch
 kubectl delete pvc -l app=kafka
 Start-Sleep -Seconds 5
 

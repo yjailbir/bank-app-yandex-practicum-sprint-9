@@ -11,28 +11,5 @@ service:
 
 config:
   applicationYml: |
-    spring:
-      application:
-        name: notification-service
-      kafka:
-        bootstrap-servers: kafka-0.kafka.default.svc.cluster.local:9092
-        consumer:
-          group-id: notification-service-group
-          key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-          value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-          properties:
-            spring.json.trusted.packages: "*"
-          enable-auto-commit: false  
-          auto-offset-reset: earliest  
-    jwt:
-      validation:
-        enabled: true
-    management:
-      endpoints:
-        web:
-          exposure:
-            include: health, info
-      endpoint:
-        health:
-          show-details: always
+    
 

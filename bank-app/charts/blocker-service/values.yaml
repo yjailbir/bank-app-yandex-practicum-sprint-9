@@ -7,22 +7,3 @@ image:
 service:
   type: ClusterIP
   port: 8080
-
-
-config:
-  applicationYml: |
-    spring:
-      application:
-        name: blocker-service
-    jwt:
-      validation:
-        enabled: true
-    management:
-      endpoints:
-        web:
-          exposure:
-            include: health, info
-      endpoint:
-        health:
-          show-details: always
-

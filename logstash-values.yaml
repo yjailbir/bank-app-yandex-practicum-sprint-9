@@ -1,0 +1,43 @@
+logstashPipeline:
+  transfer.conf: |
+    input {
+      kafka {
+        bootstrap_servers => "kafka-0.kafka.default.svc.cluster.local:9092"
+        topics_pattern => ".*-service-logs"
+        group_id => "logstash-consumer"
+        auto_offset_reset => "latest"
+        codec => plain
+      }
+    }
+
+    filter {
+      grok {
+        match => {
+          "message" => [
+            "%{TIME:time} %{LOGLEVEL:level} : %{GREEDYDATA:msg}"
+          ]
+        }
+      }
+
+      date {
+        match => ["time", "HH:mm:ss.SSS"]
+        timezone => "Europe/Moscow"
+        target => "@timestamp"
+      }
+
+      mutate {
+        remove_field => ["time"]
+      }
+    }
+
+    output {
+      elasticsearch {
+        hosts => ["http://elasticsearch-master:9200"]
+        index => "%{[@metadata][kafka][topic]}-%{+YYYY.MM.dd}"
+      }
+    }
+
+logstashConfig:
+  logstash.yml: |
+    http.host: "0.0.0.0"
+    pipeline.ecs_compatibility: disabled

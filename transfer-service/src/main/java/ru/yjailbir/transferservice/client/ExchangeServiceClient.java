@@ -15,7 +15,7 @@ public class ExchangeServiceClient {
     private final RestTemplate restTemplate;
 
     @Autowired
-    public ExchangeServiceClient( RestTemplate restTemplate) {
+    public ExchangeServiceClient(RestTemplate restTemplate) {
         restTemplate.setErrorHandler(response -> {
             // Чтобы не летели исключения на 4хх и 5хх коды. Обрабатываем коды вручную
             return false;

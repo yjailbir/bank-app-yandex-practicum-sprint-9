@@ -38,7 +38,13 @@ pipeline {
         stage('deploy') {
             steps {
                 powershell '''
+                kubectl create namespace monitoring
+                helm install prometheus-stack prometheus-community/kube-prometheus-stack -n monitoring
+                helm install grafana grafana/grafana -n monitoring
+                helm install logstash elastic/logstash -f logstash-values.yaml
+                helm install elasticsearch elastic/elasticsearch
                 helm install bank-app ./bank-app
+                kubectl apply -f prometheusrule.yaml
                 '''
             }
         }

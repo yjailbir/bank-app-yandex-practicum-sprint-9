@@ -1,6 +1,5 @@
 package ru.yjailbir.transferservice.service;
 
-import io.micrometer.tracing.Tracer;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,8 +24,6 @@ public class TransferService {
     private final NotificationClient notificationClient;
     private final BlockerServiceClient blockerServiceClient;
     private final MeterRegistry meterRegistry;
-    private final Tracer tracer;
-
 
     @Autowired
     public TransferService(
@@ -34,15 +31,13 @@ public class TransferService {
             ExchangeServiceClient exchangeServiceClient,
             NotificationClient notificationClient,
             BlockerServiceClient blockerServiceClient,
-            MeterRegistry meterRegistry,
-            Tracer tracer
+            MeterRegistry meterRegistry
     ) {
         this.accountsServiceClient = accountsServiceClient;
         this.exchangeServiceClient = exchangeServiceClient;
         this.notificationClient = notificationClient;
         this.blockerServiceClient = blockerServiceClient;
         this.meterRegistry = meterRegistry;
-        this.tracer = tracer;
     }
 
     public ResponseEntity<MessageResponseDto> doTransfer(TransferRequestDtoWithToken dto) {
@@ -64,14 +59,11 @@ public class TransferService {
                 ) {
                     meterRegistry.counter(
                             "transfer_errors_total",
-                            "fromCurrency", dto.fromCurrency(),
-                            "fromToken", dto.token(),
-                            "toCurrency", dto.toCurrency(),
-                            "toLogin", dto.toLogin()
+                            "fromCurrency", dto.fromCurrency(), "toCurrency", dto.toCurrency()
                     ).increment();
                     logger.error(
-                            "Transfer error: {}. TraceId: {}",
-                            exchangeResponseDto.message, tracer.currentSpan().context().traceId()
+                            "Transfer error: {}",
+                            exchangeResponseDto.message
                     );
                     return ResponseEntity.badRequest().body(new MessageResponseDto("error", exchangeResponseDto.message));
                 } else {
@@ -109,14 +101,11 @@ public class TransferService {
             if (!responseEntity.getStatusCode().is2xxSuccessful() || !messageResponseDto.status().equals("ok")) {
                 meterRegistry.counter(
                         "transfer_errors_total",
-                        "fromCurrency", dto.fromCurrency(),
-                        "fromToken", dto.token(),
-                        "toCurrency", dto.toCurrency(),
-                        "toLogin", dto.toLogin()
+                        "fromCurrency", dto.fromCurrency(), "toCurrency", dto.toCurrency()
                 ).increment();
                 logger.error(
-                        "Transfer error: {}. TraceId: {}",
-                        messageResponseDto.message(), tracer.currentSpan().context().traceId()
+                        "Transfer error: {}",
+                        messageResponseDto.message()
                 );
                 return ResponseEntity.badRequest().body(messageResponseDto);
             }

@@ -1,9 +1,7 @@
 package ru.yjailbir.exchangeservice.service;
 
-import io.micrometer.tracing.Tracer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yjailbir.commonslib.dto.CurrencyRateDto;
 import ru.yjailbir.commonslib.dto.request.ExchangeRequestDto;
@@ -17,12 +15,6 @@ public class ExchangeService {
     private final Logger logger = LoggerFactory.getLogger(ExchangeService.class);
 
     private List<CurrencyRateDto> rates = new ArrayList<>();
-    private final Tracer tracer;
-
-    @Autowired
-    public ExchangeService(Tracer tracer) {
-        this.tracer = tracer;
-    }
 
     public void updateRates(List<CurrencyRateDto> rates) {
         this.rates = rates;
@@ -46,7 +38,7 @@ public class ExchangeService {
                 .filter(x -> x.name().equals(currency))
                 .findFirst()
                 .orElseThrow(() -> {
-                    logger.warn("Currency {} not found. TraceId: {}", currency, tracer.currentSpan().context().traceId());
+                    logger.warn("Currency {} not found", currency);
                     return new IllegalArgumentException("Unknown currency: " + currency);
                 })
                 .value();

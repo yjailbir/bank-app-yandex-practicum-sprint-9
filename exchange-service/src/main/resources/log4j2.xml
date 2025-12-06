@@ -2,10 +2,10 @@
 <Configuration status="WARN">
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level: %msg%n"/>
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level [traceId=%X{traceId},spanId=%X{spanId}] %msg%n"/>
         </Console>
         <Kafka name="Kafka" topic="exchange-service-logs">
-            <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level: %msg%n"/>
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level [traceId=%X{traceId},spanId=%X{spanId}] %msg%n"/>
             <Property name="bootstrap.servers">kafka-0.kafka.default.svc.cluster.local:9092</Property>
         </Kafka>
     </Appenders>

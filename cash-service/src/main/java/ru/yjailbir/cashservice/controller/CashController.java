@@ -1,6 +1,5 @@
 package ru.yjailbir.cashservice.controller;
 
-import io.micrometer.tracing.Tracer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,19 +20,16 @@ public class CashController {
     private final AccountsServiceClient accountsServiceClient;
     private final NotificationClient notificationClient;
     private final BlockerServiceClient blockerServiceClient;
-    private final Tracer tracer;
 
     @Autowired
     public CashController(
             AccountsServiceClient accountsServiceClient,
             NotificationClient notificationClient,
-            BlockerServiceClient blockerServiceClient,
-            Tracer tracer
+            BlockerServiceClient blockerServiceClient
     ) {
         this.accountsServiceClient = accountsServiceClient;
         this.notificationClient = notificationClient;
         this.blockerServiceClient = blockerServiceClient;
-        this.tracer = tracer;
     }
 
     @PostMapping("/operate")
@@ -56,7 +52,7 @@ public class CashController {
             String message = "В сервисе наличных произведена операция " + dto.action() + " на сумму " + dto.value() +
                     " " + dto.currency() + " пользователем с токеном " + dto.token();
             notificationClient.sendNotification(message);
-            logger.info("{}. TraceId: {}", message, tracer.currentSpan().context().traceId());
+            logger.info("{}", message);
             return ResponseEntity.ok(messageResponseDto);
         }
     }

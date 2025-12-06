@@ -1,6 +1,5 @@
 package ru.yjailbir.accountsservice.controller;
 
-import io.micrometer.tracing.Tracer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
@@ -20,13 +19,11 @@ public class AccountsController {
 
     private final UserService userService;
     private final NotificationClient notificationClient;
-    private final Tracer tracer;
 
     @Autowired
-    public AccountsController(UserService userService, NotificationClient notificationClient, Tracer tracer) {
+    public AccountsController(UserService userService, NotificationClient notificationClient) {
         this.userService = userService;
         this.notificationClient = notificationClient;
-        this.tracer = tracer;
     }
 
     @PostMapping("/register")
@@ -172,6 +169,6 @@ public class AccountsController {
     }
 
     private void logError(Exception e) {
-        logger.error("{} TraceId: {}", e.getMessage(), tracer.currentSpan().context().traceId());
+        logger.error("{}", e.getMessage());
     }
 }

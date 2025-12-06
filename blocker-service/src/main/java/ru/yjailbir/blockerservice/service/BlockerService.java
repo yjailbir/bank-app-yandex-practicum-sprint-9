@@ -1,6 +1,5 @@
 package ru.yjailbir.blockerservice.service;
 
-import io.micrometer.tracing.Tracer;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,18 +16,16 @@ public class BlockerService {
 
     private final Random random = new Random();
     private final MeterRegistry meterRegistry;
-    private final Tracer tracer;
 
     @Autowired
-    public BlockerService(MeterRegistry meterRegistry, Tracer tracer) {
+    public BlockerService(MeterRegistry meterRegistry) {
         this.meterRegistry = meterRegistry;
-        this.tracer = tracer;
     }
 
     public ResponseEntity<MessageResponseDto> checkOperation() {
         if(random.nextInt(11) % 5 == 0) {
             meterRegistry.counter("operations_blocked_total").increment();
-            logger.info("Operation blocked. TraceId: {}", tracer.currentSpan().context().traceId());
+            logger.info("Operation blocked");
             return ResponseEntity.badRequest().body(new MessageResponseDto("error", "Операция заблокирована"));
         } else {
             return ResponseEntity.ok(new MessageResponseDto("ok", ""));

@@ -1,30 +1,35 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "blocker_service.fullname" . }}-deployment
+  name: {{ .Chart.Name }}
   labels:
-    app: {{ include "blocker_service.name" . }}
+    app: {{ .Chart.Name }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: {{ include "blocker_service.name" . }}
+      app: {{ .Chart.Name }}
   template:
     metadata:
       labels:
-        app: {{ include "blocker_service.name" . }}
+        app: {{ .Chart.Name }}
     spec:
       containers:
-        - name: {{ include "blocker_service.name" . }}
+        - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - containerPort: {{ .Values.service.port }}
           volumeMounts:
             - name: config-volume
-              mountPath: /config/application.yml
-              subPath: application.yml
+              mountPath: /app/config
+          env:
+            - name: SPRING_CONFIG_IMPORT
+              value: "file:/app/config/application.yml"
       volumes:
         - name: config-volume
           configMap:
-            name: {{ include "blocker_service.fullname" . }}-config
+            name: {{ .Chart.Name }}-config
+            items:
+              - key: application.yml
+                path: application.yml

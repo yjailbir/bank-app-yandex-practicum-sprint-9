@@ -1,5 +1,8 @@
 package ru.yjailbir.transferservice.service;
 
+import io.micrometer.core.instrument.MeterRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -14,22 +17,27 @@ import ru.yjailbir.transferservice.client.ExchangeServiceClient;
 
 @Service
 public class TransferService {
+    Logger logger = LoggerFactory.getLogger(TransferService.class);
+
     private final AccountsServiceClient accountsServiceClient;
     private final ExchangeServiceClient exchangeServiceClient;
     private final NotificationClient notificationClient;
     private final BlockerServiceClient blockerServiceClient;
+    private final MeterRegistry meterRegistry;
 
     @Autowired
     public TransferService(
             AccountsServiceClient accountsServiceClient,
             ExchangeServiceClient exchangeServiceClient,
             NotificationClient notificationClient,
-            BlockerServiceClient blockerServiceClient
+            BlockerServiceClient blockerServiceClient,
+            MeterRegistry meterRegistry
     ) {
         this.accountsServiceClient = accountsServiceClient;
         this.exchangeServiceClient = exchangeServiceClient;
         this.notificationClient = notificationClient;
         this.blockerServiceClient = blockerServiceClient;
+        this.meterRegistry = meterRegistry;
     }
 
     public ResponseEntity<MessageResponseDto> doTransfer(TransferRequestDtoWithToken dto) {
@@ -49,6 +57,14 @@ public class TransferService {
                 if (
                         !exchangeResponseEntity.getStatusCode().is2xxSuccessful() || !exchangeResponseDto.status.equals("ok")
                 ) {
+                    meterRegistry.counter(
+                            "transfer_errors_total",
+                            "fromCurrency", dto.fromCurrency(), "toCurrency", dto.toCurrency()
+                    ).increment();
+                    logger.error(
+                            "Transfer error: {}",
+                            exchangeResponseDto.message
+                    );
                     return ResponseEntity.badRequest().body(new MessageResponseDto("error", exchangeResponseDto.message));
                 } else {
                     exchangedTransferDto = new ExchangedTransferDtoWithToken(
@@ -83,6 +99,14 @@ public class TransferService {
 
             assert messageResponseDto != null;
             if (!responseEntity.getStatusCode().is2xxSuccessful() || !messageResponseDto.status().equals("ok")) {
+                meterRegistry.counter(
+                        "transfer_errors_total",
+                        "fromCurrency", dto.fromCurrency(), "toCurrency", dto.toCurrency()
+                ).increment();
+                logger.error(
+                        "Transfer error: {}",
+                        messageResponseDto.message()
+                );
                 return ResponseEntity.badRequest().body(messageResponseDto);
             }
 

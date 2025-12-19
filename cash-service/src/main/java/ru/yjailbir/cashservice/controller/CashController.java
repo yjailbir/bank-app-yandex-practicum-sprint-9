@@ -1,5 +1,7 @@
 package ru.yjailbir.cashservice.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,6 +15,8 @@ import ru.yjailbir.commonslib.client.NotificationClient;
 
 @RestController
 public class CashController {
+    private final Logger logger = LoggerFactory.getLogger(CashController.class);
+
     private final AccountsServiceClient accountsServiceClient;
     private final NotificationClient notificationClient;
     private final BlockerServiceClient blockerServiceClient;
@@ -45,11 +49,10 @@ public class CashController {
                 return ResponseEntity.badRequest().body(messageResponseDto);
             }
 
-            notificationClient.sendNotification(
-                    "В сервисе наличных произведена операция " + dto.action() + " на сумму " + dto.value() +
-                            " " + dto.currency() + " пользователем с токеном " + dto.token()
-            );
-
+            String message = "В сервисе наличных произведена операция " + dto.action() + " на сумму " + dto.value() +
+                    " " + dto.currency() + " пользователем с токеном " + dto.token();
+            notificationClient.sendNotification(message);
+            logger.info("{}", message);
             return ResponseEntity.ok(messageResponseDto);
         }
     }

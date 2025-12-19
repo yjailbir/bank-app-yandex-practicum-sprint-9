@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zipkin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: zipkin
+  template:
+      metadata:
+        labels:
+          app: zipkin
+      spec:
+        containers:
+          - name: zipkin
+            image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+            imagePullPolicy: {{ .Values.image.pullPolicy }}
+            ports:
+              - containerPort: 9411
+            env:
+              - name: SERVER_PORT
+                value: "9411"
+              - name: SERVER_ADDRESS
+                value: "0.0.0.0"

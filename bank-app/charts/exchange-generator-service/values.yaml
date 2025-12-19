@@ -7,29 +7,3 @@ image:
 service:
   type: ClusterIP
   port: 8080
-
-
-config:
-  applicationYml: |
-    spring:
-      application:
-        name: exchange-generator-service
-      kafka:
-        bootstrap-servers: kafka-0.kafka.default.svc.cluster.local:9092
-        producer:
-          key-serializer: org.apache.kafka.common.serialization.StringSerializer
-          value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-          acks: 0
-          retries: 0
-    jwt:
-      validation:
-        enabled: false
-    management:
-      endpoints:
-        web:
-          exposure:
-            include: health, info
-      endpoint:
-        health:
-          show-details: always
-
